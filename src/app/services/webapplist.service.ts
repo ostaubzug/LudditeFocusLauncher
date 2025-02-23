@@ -67,7 +67,7 @@ export class WebAppListService {
     );
   }
 
-  getApps(): WebApp[] {
+  getWebAppList(): WebApp[] {
     return this.webAppsSubject.value;
   }
 }

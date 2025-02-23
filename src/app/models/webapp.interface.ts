@@ -3,4 +3,5 @@ export interface WebApp {
   url: string;
   name: string;
   timeLimit: string;
+  icon: string;
 }
