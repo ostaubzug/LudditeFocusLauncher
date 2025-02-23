@@ -1,8 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { WebAppListService } from '../../services/webapplist.service';
 import { WebApp } from '../../models/webapp.interface';
+
+interface WebAppWithSafeIcon extends WebApp {
+  safeIcon: SafeHtml;
+}
 
 @Component({
   selector: 'app-search',
@@ -10,7 +15,6 @@ import { WebApp } from '../../models/webapp.interface';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="relative mx-auto max-w-2xl px-4 pt-16">
-      <!-- Search input with glass effect -->
       <div class="relative">
         <input
           type="text"
@@ -31,7 +35,7 @@ import { WebApp } from '../../models/webapp.interface';
             <ul class="max-h-96 overflow-y-auto p-2 text-sm">
               @for (app of filteredApps; track app._id) {
                 <li class="group flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-white hover:bg-white/10">
-                  <div class="size-6 flex-none text-white/70" [innerHTML]="app.icon"></div>
+                  <div class="size-6 flex-none text-white/70" [innerHTML]="app.safeIcon"></div>
                   <span class="ml-3 flex-auto truncate">{{ app.name }}</span>
                   <span class="ml-3 flex-none text-white/70">{{ app.url }}</span>
                 </li>
@@ -49,17 +53,32 @@ import { WebApp } from '../../models/webapp.interface';
 })
 export class SearchComponent implements OnInit {
   searchTerm = '';
-  apps: WebApp[] = [];
-  filteredApps: WebApp[] = [];
+  apps: WebAppWithSafeIcon[] = [];
+  filteredApps: WebAppWithSafeIcon[] = [];
 
-  constructor(private webAppService: WebAppListService) {}
+  constructor(
+    private webAppService: WebAppListService,
+    private sanitizer: DomSanitizer
+  ) {}
 
   ngOnInit() {
-    this.webAppService.apps$.subscribe(apps => {
-      this.apps = apps;
-      this.filteredApps = apps;
+    this.webAppService.apps$.subscribe({
+      next: (apps) => {
+        console.log('Received apps:', apps);
+        // Transform the apps to include sanitized icons
+        this.apps = apps.map(app => ({
+          ...app,
+          safeIcon: this.sanitizer.bypassSecurityTrustHtml(app.icon)
+        }));
+        this.filteredApps = this.apps;
+      },
+      error: (error) => console.error('Error subscribing to apps:', error)
     });
-    this.webAppService.syncWithServer().subscribe();
+
+    this.webAppService.syncWithServer().subscribe({
+      next: () => console.log('Successfully synced with server'),
+      error: (error) => console.error('Error syncing with server:', error)
+    });
   }
 
   filterApps() {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, tap } from 'rxjs';
 import { WebApp } from '../models/webapp.interface';
 import { Preferences } from '@capacitor/preferences';
@@ -8,8 +8,8 @@ import { Preferences } from '@capacitor/preferences';
   providedIn: 'root'
 })
 export class WebAppListService {
-  private readonly STORAGE_KEY = 'cached_webapp_list';
-  private readonly API_URL = 'http://localhost:3000/api/apps';
+  private readonly STORAGE_KEY = '[REDACTED]';
+  private readonly API_URL = '/api/apps';
 
   private webAppsSubject = new BehaviorSubject<WebApp[]>([]);
   public apps$ = this.webAppsSubject.asObservable();
@@ -44,7 +44,12 @@ export class WebAppListService {
   }
 
   syncWithServer(): Observable<WebApp[]> {
-    return this.http.get<WebApp[]>(this.API_URL).pipe(
+    const headers = new HttpHeaders().set('Accept', 'application/json');
+
+    return this.http.get<WebApp[]>(this.API_URL, {
+      headers,
+      responseType: 'json'
+    }).pipe(
       tap({
         next: async (apps) => {
           if (Array.isArray(apps) && apps.length > 0) {
@@ -62,6 +67,7 @@ export class WebAppListService {
         }
       }),
       catchError(error => {
+        console.error('Error in syncWithServer:', error);
         throw error;
       })
     );
