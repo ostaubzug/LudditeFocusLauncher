@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LudditeLauncher</string>
+    <string name="title_activity_main">LudditeLauncher</string>
+    <string name="package_name">com.luddite.ludditelauncher</string>
+    <string name="custom_url_scheme">com.luddite.ludditelauncher</string>
+</resources>
