@@ -4,8 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { WebAppListService } from '../../services/webapplist.service';
 import { WebApp } from '../../models/webapp.interface';
+import {Browser} from '@capacitor/browser';
 
-interface WebAppWithSafeIcon extends WebApp {
+interface WebAppWithSanitizedIcon extends WebApp {
   safeIcon: SafeHtml;
 }
 
@@ -37,7 +38,7 @@ interface WebAppWithSafeIcon extends WebApp {
             <ul class="max-h-96 overflow-y-auto p-2 text-sm">
               @for (app of displayedApps; track app._id) {
                 <li
-                  (mousedown)="handleItemClick()"
+                  (mousedown)="handleItemClick(app)"
                   class="group flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-white hover:bg-white/10"
                 >
                   <div class="size-6 flex-none text-white/70" [innerHTML]="app.safeIcon"></div>
@@ -58,8 +59,8 @@ interface WebAppWithSafeIcon extends WebApp {
 })
 export class SearchComponent implements OnInit {
   searchTerm = '';
-  apps: WebAppWithSafeIcon[] = [];
-  filteredApps: WebAppWithSafeIcon[] = [];
+  apps: WebAppWithSanitizedIcon[] = [];
+  filteredApps: WebAppWithSanitizedIcon[] = [];
   isFocused = false;
   itemClicked = false;
 
@@ -115,7 +116,25 @@ export class SearchComponent implements OnInit {
     this.itemClicked = false;
   }
 
-  handleItemClick() {
+  async handleItemClick(app: WebAppWithSanitizedIcon) {
     this.itemClicked = true;
+    try {
+      await this.openWebApp(app);
+    } catch (error) {
+      console.error('Error in handleItemClick:', error);
+    }
   }
-}
+
+async openWebApp(app: WebAppWithSanitizedIcon) {
+  try {
+    this.isFocused = false;
+
+    await Browser.open({
+      url: app.url.startsWith('http') ? app.url : `https://${app.url}`,
+      presentationStyle: 'popover', // This hides the URL bar
+      toolbarColor: '#333333'
+    });
+  } catch (error) {
+    console.error('Error opening browser:', error);
+  }
+}}
