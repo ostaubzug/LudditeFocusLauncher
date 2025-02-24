@@ -1,20 +1,21 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, tap } from 'rxjs';
+import { BehaviorSubject, Observable, from } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { WebApp } from '../models/webapp.interface';
 import { Preferences } from '@capacitor/preferences';
+import { CapacitorHttp } from '@capacitor/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebAppListService {
-  private readonly STORAGE_KEY = 'webAppList';
+  private readonly STORAGE_KEY = 'webAppListService';
   private readonly API_URL = 'http://195.15.192.3:3000/api/apps';
 
   private webAppsSubject = new BehaviorSubject<WebApp[]>([]);
   public apps$ = this.webAppsSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor() {
     this.loadFromStorage();
   }
 
@@ -44,14 +45,26 @@ export class WebAppListService {
   }
 
   syncWithServer(): Observable<WebApp[]> {
-    const headers = new HttpHeaders().set('Accept', 'application/json');
+    console.log('Attempting to sync with server using Capacitor HTTP');
 
-    return this.http.get<WebApp[]>(this.API_URL, {
-      headers,
-      responseType: 'json'
-    }).pipe(
+    // Use Capacitor HTTP plugin instead of Angular's HttpClient
+    return from(CapacitorHttp.get({
+      url: this.API_URL,
+      headers: {
+        'Accept': 'application/json'
+      }
+    })).pipe(
+      map(response => {
+        console.log('Server response:', response);
+        if (response.status === 200) {
+          return response.data as WebApp[];
+        } else {
+          throw new Error(`API error: ${response.status}`);
+        }
+      }),
       tap({
         next: async (apps) => {
+          console.log('Received apps from server:', apps);
           if (Array.isArray(apps) && apps.length > 0) {
             await this.saveToStorage(apps);
           } else {
