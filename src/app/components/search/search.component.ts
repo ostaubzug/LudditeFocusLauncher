@@ -20,6 +20,8 @@ interface WebAppWithSafeIcon extends WebApp {
           type="text"
           [(ngModel)]="searchTerm"
           (ngModelChange)="filterApps()"
+          (focus)="isFocused = true"
+          (blur)="handleBlur()"
           class="w-full rounded-xl bg-white/10 px-11 py-3 text-base text-white backdrop-blur-lg transition-all placeholder:text-gray-300 focus:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/20"
           placeholder="Search apps..."
         >
@@ -28,13 +30,16 @@ interface WebAppWithSafeIcon extends WebApp {
         </svg>
       </div>
 
-      <!-- Results panel - only shown when there's a search term -->
-      @if (searchTerm.trim()) {
+      <!-- Results panel - shown when focused or has search term -->
+      @if (isFocused || searchTerm.trim()) {
         <div class="mt-2 rounded-xl bg-white/10 backdrop-blur-lg">
           @if (filteredApps.length > 0) {
             <ul class="max-h-96 overflow-y-auto p-2 text-sm">
-              @for (app of filteredApps; track app._id) {
-                <li class="group flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-white hover:bg-white/10">
+              @for (app of displayedApps; track app._id) {
+                <li
+                  (mousedown)="handleItemClick()"
+                  class="group flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-white hover:bg-white/10"
+                >
                   <div class="size-6 flex-none text-white/70" [innerHTML]="app.safeIcon"></div>
                   <span class="ml-3 flex-auto truncate">{{ app.name }}</span>
                   <span class="ml-3 flex-none text-white/70">{{ app.url }}</span>
@@ -55,6 +60,8 @@ export class SearchComponent implements OnInit {
   searchTerm = '';
   apps: WebAppWithSafeIcon[] = [];
   filteredApps: WebAppWithSafeIcon[] = [];
+  isFocused = false;
+  itemClicked = false;
 
   constructor(
     private webAppService: WebAppListService,
@@ -64,8 +71,6 @@ export class SearchComponent implements OnInit {
   ngOnInit() {
     this.webAppService.apps$.subscribe({
       next: (apps) => {
-        console.log('Received apps:', apps);
-        // Transform the apps to include sanitized icons
         this.apps = apps.map(app => ({
           ...app,
           safeIcon: this.sanitizer.bypassSecurityTrustHtml(app.icon)
@@ -81,6 +86,14 @@ export class SearchComponent implements OnInit {
     });
   }
 
+  get displayedApps() {
+    // If there's a search term, show all filtered results
+    // Otherwise, show just the first 4 apps
+    return this.searchTerm.trim()
+      ? this.filteredApps
+      : this.filteredApps.slice(0, 4);
+  }
+
   filterApps() {
     if (!this.searchTerm.trim()) {
       this.filteredApps = this.apps;
@@ -92,5 +105,17 @@ export class SearchComponent implements OnInit {
       app.name.toLowerCase().includes(search) ||
       app.url.toLowerCase().includes(search)
     );
+  }
+
+  handleBlur() {
+    // Only hide the panel if we didn't click an item
+    if (!this.itemClicked) {
+      this.isFocused = false;
+    }
+    this.itemClicked = false;
+  }
+
+  handleItemClick() {
+    this.itemClicked = true;
   }
 }
