@@ -8,8 +8,8 @@ import { Preferences } from '@capacitor/preferences';
   providedIn: 'root'
 })
 export class WebAppListService {
-  private readonly STORAGE_KEY = '[REDACTED]';
-  private readonly API_URL = '/api/apps';
+  private readonly STORAGE_KEY = 'webAppList';
+  private readonly API_URL = 'http://195.15.192.3:3000/api/apps';
 
   private webAppsSubject = new BehaviorSubject<WebApp[]>([]);
   public apps$ = this.webAppsSubject.asObservable();

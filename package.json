@@ -24,6 +24,7 @@
     "@capacitor/core": "^7.0.1",
     "@capacitor/preferences": "^7.0.0",
     "@tailwindcss/postcss": "^4.0.8",
+    "jetifier": "^2.0.0",
     "postcss": "^8.5.3",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.0.8",
