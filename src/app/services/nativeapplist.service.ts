@@ -1,16 +1,18 @@
 import { Injectable } from '@angular/core';
 import { BaseappService } from './baseapp.service';
-import { WebApp } from '../models/webapp.interface';
+import { NativeApp } from '../models/nativeapp.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class WebAppListService extends BaseappService<WebApp> {
+export class NativeAppListService extends BaseappService<NativeApp> {
   protected get STORAGE_KEY(): string {
-    return 'webAppList';
+    return 'nativeAppList';
   }
 
   protected get API_URL(): string {
-    return 'http://195.15.192.3:3000/api/webapps';
+    return 'http://195.15.192.3:3000/api/nativeapps';
   }
+
+
 }

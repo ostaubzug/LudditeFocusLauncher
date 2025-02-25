@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { WebAppListService } from '../../services/webapplist.service';
-import { WebApp } from '../../models/webapp.interface';
 import { InAppBrowser, DefaultWebViewOptions } from '@capacitor/inappbrowser';
+import {AppListService} from '../../services/applist.service';
+import {App} from '../../models/app.interface';
 
-interface WebAppWithSanitizedIcon extends WebApp {
+interface AppWithSanitizedIcon extends App {
   safeIcon: SafeHtml;
 }
 
@@ -27,15 +27,17 @@ interface WebAppWithSanitizedIcon extends WebApp {
           class="w-full rounded-xl bg-white/10 px-11 py-3 text-base text-white backdrop-blur-lg transition-all placeholder:text-gray-300 focus:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/20"
           placeholder="Search apps..."
         >
-        <svg class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-white/70" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd" />
+        <svg class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-white/70"
+             viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd"
+                d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z"
+                clip-rule="evenodd"/>
         </svg>
       </div>
 
-      <!-- Results panel - shown when focused or has search term -->
       @if (isFocused || searchTerm.trim()) {
         <div class="mt-2 rounded-xl bg-white/10 backdrop-blur-lg">
-          @if (filteredApps.length > 0) {
+          @if (filteredSanitizedAppList.length > 0) {
             <ul class="max-h-96 overflow-y-auto p-2 text-sm">
               @for (app of displayedApps; track app._id) {
                 <li
@@ -60,50 +62,51 @@ interface WebAppWithSanitizedIcon extends WebApp {
 })
 export class SearchComponent implements OnInit {
   searchTerm = '';
-  apps: WebAppWithSanitizedIcon[] = [];
-  filteredApps: WebAppWithSanitizedIcon[] = [];
+  sanitizedAppList: AppWithSanitizedIcon[] = [];
+  filteredSanitizedAppList: AppWithSanitizedIcon[] = [];
   isFocused = false;
   itemClicked = false;
 
   constructor(
-    private webAppService: WebAppListService,
+    private appService: AppListService,
     private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit() {
-    this.webAppService.apps$.subscribe({
-      next: (apps) => {
-        this.apps = apps.map(app => ({
+    console.log('SearchComponent.ngOnInit() called');
+
+    this.appService.apps$.subscribe({
+      next: (appList) => {
+        this.sanitizedAppList = appList.map(app => ({
           ...app,
           safeIcon: this.sanitizer.bypassSecurityTrustHtml(app.icon)
         }));
-        this.filteredApps = this.apps;
+        this.filteredSanitizedAppList = this.sanitizedAppList;
       },
-      error: (error) => console.error('Error subscribing to apps:', error)
+      error: (error) => console.error('Error subscribing to Apps:', error)
     });
 
-    this.webAppService.syncWithServer().subscribe({
-      next: () => console.log('Successfully synced with server'),
-      error: (error) => console.error('Error syncing with server:', error)
+    this.appService.syncAll().subscribe({
+      next: (apps) => {
+      },
+      error: (error) => console.error('Error syncing apps with server:', error)
     });
   }
 
   get displayedApps() {
-    // If there's a search term, show all filtered results
-    // Otherwise, show just the first 4 apps
     return this.searchTerm.trim()
-      ? this.filteredApps
-      : this.filteredApps.slice(0, 4);
+      ? this.filteredSanitizedAppList
+      : this.filteredSanitizedAppList.slice(0, 4);
   }
 
   filterApps() {
     if (!this.searchTerm.trim()) {
-      this.filteredApps = this.apps;
+      this.filteredSanitizedAppList = this.sanitizedAppList;
       return;
     }
 
     const search = this.searchTerm.toLowerCase();
-    this.filteredApps = this.apps.filter(app =>
+    this.filteredSanitizedAppList = this.sanitizedAppList.filter(app =>
       app.name.toLowerCase().includes(search) ||
       app.url.toLowerCase().includes(search)
     );
@@ -117,25 +120,27 @@ export class SearchComponent implements OnInit {
     this.itemClicked = false;
   }
 
-  async handleItemClick(app: WebAppWithSanitizedIcon) {
+  async handleItemClick(app: AppWithSanitizedIcon) {
     this.itemClicked = true;
     try {
-      await this.openWebApp(app);
+      await this.openApp(app);
     } catch (error) {
       console.error('Error in handleItemClick:', error);
     }
   }
 
-  async openWebApp(webApp: WebAppWithSanitizedIcon) {
-    try {
-      this.isFocused = false;
+  async openApp(app: AppWithSanitizedIcon) {
 
-      await InAppBrowser.openInWebView({
-        url: webApp.url,
-        options: DefaultWebViewOptions
-      });
-    } catch (error) {
-      console.error('Error opening browser:', error);
+    if(app.type == "webApp"){
+      try {
+        this.isFocused = false;
+        await InAppBrowser.openInWebView({
+          url: app.url,
+          options: DefaultWebViewOptions
+        });
+      } catch (error) {
+        console.error('Error opening browser:', error);
+      }
     }
   }
 }
