@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { InAppBrowser, DefaultWebViewOptions } from '@capacitor/inappbrowser';
+import { Router } from '@angular/router';
 import { AppListService } from '../../services/applist.service';
 import { App } from '../../models/app.interface';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import {AppLauncher} from '@capacitor/app-launcher';
+import { AppLauncher } from '@capacitor/app-launcher';
 
 interface AppWithSanitizedIcon extends App {
   safeIcon: SafeHtml;
@@ -37,13 +38,14 @@ interface AppWithSanitizedIcon extends App {
   template: `
     <div class="relative mx-auto max-w-2xl px-4 transform transition-all duration-300 ease-in-out"
          [ngClass]="isFocused ? 'pt-16' : 'pt-[10vh]'">
-      <div class="relative">
+      <div class="relative" #searchContainer>
         <input
           type="text"
           [(ngModel)]="searchTerm"
           (ngModelChange)="filterApps()"
           (focus)="onFocus()"
           (blur)="handleBlur()"
+          #searchInput
           class="w-full rounded-xl bg-white/10 px-11 py-3 text-base text-white backdrop-blur-lg transition-all placeholder:text-gray-300 focus:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/20"
           placeholder="Search apps..."
         >
@@ -55,30 +57,44 @@ interface AppWithSanitizedIcon extends App {
         </svg>
       </div>
 
-      @if (isFocused || searchTerm.trim()) {
-        <div
-          [@fadeAnimation]="showResults ? 'visible' : 'hidden'"
-          class="mt-8 rounded-xl bg-white/10 backdrop-blur-lg">
-          @if (filteredSanitizedAppList.length > 0) {
-            <ul class="max-h-72 overflow-y-auto p-2 text-sm custom-scrollbar">
-              @for (app of filteredSanitizedAppList; track app._id) {
-                <li
-                  (mousedown)="handleItemClick(app)"
-                  class="group flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-white hover:bg-white/10"
-                >
-                  <div class="size-6 flex-none text-white/70" [innerHTML]="app.safeIcon"></div>
-                  <span class="ml-3 flex-auto truncate">{{ app.name }}</span>
-                  <span class="ml-3 flex-none text-white/70">{{ app.url }}</span>
-                </li>
-              }
-            </ul>
-          } @else {
-            <div class="p-4 text-center text-white/70">
-              No apps found for "{{ searchTerm }}"
+      <div
+        *ngIf="isFocused || searchTerm.trim()"
+        [@fadeAnimation]="showResults ? 'visible' : 'hidden'"
+        class="mt-8 rounded-xl bg-white/10 backdrop-blur-lg"
+        #resultsPanel
+      >
+        <ul class="max-h-72 overflow-y-auto p-2 text-sm custom-scrollbar">
+          <!-- Always show LudditeSettings at the top -->
+          <li
+            (mousedown)="openSettings()"
+            class="group flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-white hover:bg-white/10"
+          >
+            <div class="size-6 flex-none text-white/70">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+              </svg>
             </div>
-          }
-        </div>
-      }
+            <span class="ml-3 flex-auto truncate">LudditeSettings</span>
+            <span class="ml-3 flex-none text-white/70">Settings</span>
+          </li>
+
+          <!-- App list items -->
+          <li
+            *ngFor="let app of filteredSanitizedAppList; trackBy: trackById"
+            (mousedown)="handleItemClick(app)"
+            class="group flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-white hover:bg-white/10"
+          >
+            <div class="size-6 flex-none text-white/70" [innerHTML]="app.safeIcon"></div>
+            <span class="ml-3 flex-auto truncate">{{ app.name }}</span>
+            <span class="ml-3 flex-none text-white/70">{{ app.url }}</span>
+          </li>
+
+          <li *ngIf="filteredSanitizedAppList.length === 0 && searchTerm.trim()" class="p-4 text-center text-white/70">
+            No apps found for "{{ searchTerm }}"
+          </li>
+        </ul>
+      </div>
     </div>
   `,
   styles: [`
@@ -118,10 +134,32 @@ export class SearchComponent implements OnInit {
   itemClicked = false;
   showResults = false; // Control visibility separately for animation
 
+  @ViewChild('searchContainer', { static: false }) searchContainer!: ElementRef;
+  @ViewChild('resultsPanel', { static: false }) resultsPanel!: ElementRef;
+  @ViewChild('searchInput', { static: false }) searchInput!: ElementRef;
+
   constructor(
     private appService: AppListService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private router: Router
   ) {}
+
+  // Handle clicks outside the search container to close results
+  @HostListener('document:click', ['$event'])
+  handleOutsideClick(event: MouseEvent) {
+    // Don't process if search isn't active
+    if (!this.isFocused) return;
+
+    // Check if the click was outside the search container and results panel
+    const clickedInside =
+      this.searchContainer?.nativeElement.contains(event.target) ||
+      this.resultsPanel?.nativeElement?.contains(event.target);
+
+    if (!clickedInside && !this.itemClicked) {
+      this.isFocused = false;
+      this.showResults = false;
+    }
+  }
 
   ngOnInit() {
     console.log('SearchComponent.ngOnInit() called');
@@ -147,6 +185,11 @@ export class SearchComponent implements OnInit {
     });
   }
 
+  // For ngFor trackBy function
+  trackById(index: number, app: AppWithSanitizedIcon): string {
+    return app._id;
+  }
+
   // Handle focus event on the search input
   onFocus() {
     this.isFocused = true;
@@ -158,17 +201,9 @@ export class SearchComponent implements OnInit {
 
   // Handle blur event on the search input
   handleBlur() {
-    // Only hide the panel if we didn't click an item
-    if (!this.itemClicked) {
-      this.isFocused = false;
-      this.showResults = false;
-    }
+    // We'll handle closing in the document click handler
+    // This ensures we don't close the panel if the user clicks on a result
     this.itemClicked = false;
-  }
-
-  // This method is no longer used since we're showing all items in the scrollable list
-  get displayedApps() {
-    return this.filteredSanitizedAppList;
   }
 
   filterApps() {
@@ -191,6 +226,13 @@ export class SearchComponent implements OnInit {
     } catch (error) {
       console.error('Error in handleItemClick:', error);
     }
+  }
+
+  openSettings() {
+    this.itemClicked = true;
+    this.isFocused = false;
+    this.showResults = false;
+    this.router.navigate(['/settings']);
   }
 
   async openApp(app: AppWithSanitizedIcon) {
