@@ -6,6 +6,7 @@ import { InAppBrowser, DefaultWebViewOptions } from '@capacitor/inappbrowser';
 import { AppListService } from '../../services/applist.service';
 import { App } from '../../models/app.interface';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import {AppLauncher} from '@capacitor/app-launcher';
 
 interface AppWithSanitizedIcon extends App {
   safeIcon: SafeHtml;
@@ -194,15 +195,23 @@ export class SearchComponent implements OnInit {
 
   async openApp(app: AppWithSanitizedIcon) {
     if(app.type == "webApp"){
+      this.isFocused = false;
+      this.showResults = false;
       try {
-        this.isFocused = false;
-        this.showResults = false;
         await InAppBrowser.openInWebView({
           url: app.url,
           options: DefaultWebViewOptions
         });
       } catch (error) {
-        console.error('Error opening browser:', error);
+        console.error('Error opening webView:', error);
+      }
+    }
+    if(app.type == "nativeApp"){
+      try {
+        AppLauncher.openUrl({url: app.url})
+          .then(() => {})
+      } catch (error) {
+        console.error('Error calling openUrl:', error);
       }
     }
   }
