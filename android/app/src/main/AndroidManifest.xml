@@ -7,6 +7,7 @@
     <package android:name="proton.android.pass" />
     <package android:name="org.lineageos.aperture" />
     <package android:name="com.android.dialer" />
+    <package android:name="com.whatsapp" />
   </queries>
 
   <application
