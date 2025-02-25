@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { WebAppListService } from '../../services/webapplist.service';
 import { WebApp } from '../../models/webapp.interface';
-import {Browser} from '@capacitor/browser';
+import {InAppBrowser, DefaultWebViewOptions, DefaultSystemBrowserOptions} from '@capacitor/inappbrowser';
 
 interface WebAppWithSanitizedIcon extends WebApp {
   safeIcon: SafeHtml;
@@ -109,7 +109,6 @@ export class SearchComponent implements OnInit {
   }
 
   handleBlur() {
-    // Only hide the panel if we didn't click an item
     if (!this.itemClicked) {
       this.isFocused = false;
     }
@@ -125,14 +124,15 @@ export class SearchComponent implements OnInit {
     }
   }
 
-async openWebApp(app: WebAppWithSanitizedIcon) {
+async openWebApp(webApp: WebAppWithSanitizedIcon) {
   try {
     this.isFocused = false;
 
-    await Browser.open({
-      url: app.url.startsWith('http') ? app.url : `https://${app.url}`,
-      presentationStyle: 'popover', // This hides the URL bar
-      toolbarColor: '#333333'
+
+
+    await InAppBrowser.openInWebView({
+      url: webApp.url,
+      options: DefaultWebViewOptions
     });
   } catch (error) {
     console.error('Error opening browser:', error);
