@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { WebAppListService } from '../../services/webapplist.service';
 import { WebApp } from '../../models/webapp.interface';
-import {InAppBrowser, DefaultWebViewOptions, DefaultSystemBrowserOptions} from '@capacitor/inappbrowser';
+import { InAppBrowser, DefaultWebViewOptions } from '@capacitor/inappbrowser';
 
 interface WebAppWithSanitizedIcon extends WebApp {
   safeIcon: SafeHtml;
@@ -15,7 +15,8 @@ interface WebAppWithSanitizedIcon extends WebApp {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="relative mx-auto max-w-2xl px-4 pt-16">
+    <div class="relative mx-auto max-w-2xl px-4 transform transition-all duration-300 ease-in-out"
+         [ngClass]="isFocused ? 'pt-16' : 'pt-[10vh]'">
       <div class="relative">
         <input
           type="text"
@@ -109,6 +110,7 @@ export class SearchComponent implements OnInit {
   }
 
   handleBlur() {
+    // Only hide the panel if we didn't click an item
     if (!this.itemClicked) {
       this.isFocused = false;
     }
@@ -124,17 +126,16 @@ export class SearchComponent implements OnInit {
     }
   }
 
-async openWebApp(webApp: WebAppWithSanitizedIcon) {
-  try {
-    this.isFocused = false;
+  async openWebApp(webApp: WebAppWithSanitizedIcon) {
+    try {
+      this.isFocused = false;
 
-
-
-    await InAppBrowser.openInWebView({
-      url: webApp.url,
-      options: DefaultWebViewOptions
-    });
-  } catch (error) {
-    console.error('Error opening browser:', error);
+      await InAppBrowser.openInWebView({
+        url: webApp.url,
+        options: DefaultWebViewOptions
+      });
+    } catch (error) {
+      console.error('Error opening browser:', error);
+    }
   }
-}}
+}
