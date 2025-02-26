@@ -8,6 +8,8 @@
     <package android:name="org.lineageos.aperture" />
     <package android:name="com.android.dialer" />
     <package android:name="com.whatsapp" />
+    <package android:name="com.example.ludditeinstaller" />
+
   </queries>
 
   <application
@@ -27,7 +29,6 @@
       android:launchMode="singleTask"
       android:exported="true">
 
-      <!-- Original intent filter -->
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
