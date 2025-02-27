@@ -75,7 +75,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release
         with:
           files: android/app/build/outputs/apk/release/ludditelauncher-aligned.apk
           name: "LudditeLauncher ${{ env.VERSION }}"
