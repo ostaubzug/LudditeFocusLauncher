@@ -84,7 +84,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
 
       - name: Upload APK to Infomaniak
-        uses: Noelware/s3-action
+        uses: Noelware/s3-action@2.2.7
         with:
           files: android/app/build/outputs/apk/release/ludditelauncher-aligned.apk
           access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
