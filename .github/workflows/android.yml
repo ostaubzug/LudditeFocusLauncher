@@ -20,8 +20,7 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          distribution: "zulu"
-          java-version: "17"
+          java-version: "21"
 
       - name: Install packages using apt-get
         run: |
