@@ -10,6 +10,9 @@
     <package android:name="com.whatsapp" />
     <package android:name="com.example.ludditeinstaller" />
     <package android:name="com.android.messaging" />
+    <package android:name="me.proton.android.calendar" />
+    <package android:name="me.proton.wallet.android" />
+    <package android:name="ch.protonmail.android" />
 
 
   </queries>
