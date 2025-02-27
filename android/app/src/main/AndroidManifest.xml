@@ -9,6 +9,8 @@
     <package android:name="com.android.dialer" />
     <package android:name="com.whatsapp" />
     <package android:name="com.example.ludditeinstaller" />
+    <package android:name="com.android.messaging" />
+
 
   </queries>
 
