@@ -1,26 +1,29 @@
 name: GitHub Pages Publish
 
-
 on:
   push:
     branches:
       - main
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4.2.2
+
+      - name: Set GitHub Token
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          echo "GH_TOKEN=${{ github.token }}" >> $GITHUB_ENV
 
       - name: asciidoctor-ghpages
         uses: manoelcampos/asciidoctor-ghpages-action@v2.3.0
         with:
           pdf_build: true
-          # asciidoctor_params: --attribute=nofooter
-          # adoc_file_ext: .ascii # default is .adoc
-          source_dir: Doc/ # default is .
-          # slides_build: true
-          # pre_build:
-          # post_build:
+          source_dir: Doc/
+          ebook_main_adoc_file: LauncherDocumentation
+          asciidoctor_params: --attribute=toc=left --attribute=toclevels=3
