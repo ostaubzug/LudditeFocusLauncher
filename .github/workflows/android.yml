@@ -81,13 +81,11 @@ jobs:
           name: "LudditeLauncher ${{ env.VERSION }}"
           tag_name: ${{ github.ref_name }}
 
-      - name: Upload APK with Debugging Enabled
-        run: |
-          APK_FILE="android/app/build/outputs/apk/release/ludditelauncher-aligned.apk"
-          S3_URI="s3://${{ secrets.S3_BUCKET_NAME }}/ludditelauncher-${VERSION}.apk"
-
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          # Add SSL verification bypass
-          export AWS_DEFAULT_SSL_VERIFY=false
-          aws --endpoint-url=${{ secrets.S3_ENDPOINT_URL }} s3 cp $APK_FILE $S3_URI --debug
+      - name: Upload APK to Infomaniak
+        uses: Noelware/s3-action@2
+        with:
+          files: android/app/build/outputs/apk/release/ludditelauncher-aligned.apk
+          access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret-key: ${{ secrets.S3_ENDPOINT_URL }}
+          endpoint: ${{ secrets.S3_ENDPOINT_URL }}
+          bucket: ${{ secrets.S3_BUCKET_NAME }}
