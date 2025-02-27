@@ -2,8 +2,6 @@ name: Android CI
 
 on:
   push:
-    branches:
-      - main
     tags:
       - "*"
 
@@ -19,31 +17,8 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all history for all branches and tags
 
-      - name: Install AsciiDoctor
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y asciidoctor ruby ruby-dev
-          sudo apt-get install -y zipalign
-          sudo gem install asciidoctor-pdf asciidoctor-diagram
-
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-
-      - name: Build AsciiDoc Documentation
-        run: |
-          mkdir -p docs
-          asciidoctor -D docs Doc/LauncherDocumentation.adoc
-          asciidoctor-pdf -D docs Doc/LauncherDocumentation.adoc
-
-          # Copy images for HTML docs
-          cp -r Doc/images docs/
-
-      - name: Upload Documentation as Artifacts
-        uses: actions/upload-artifact@v4.6.1
-        with:
-          name: documentation
-          path: docs/
-          retention-days: 90
 
       - uses: actions/setup-java@v3
         with:
@@ -112,44 +87,3 @@ jobs:
             docs/LauncherDocumentation.pdf
           name: "LudditeLauncher ${{ env.VERSION }}"
           tag_name: ${{ github.ref_name }}
-
-      - name: Update README
-        if: env.RELEASE_TAG == 'true'
-        run: |
-          # Make sure we're on the main branch
-          git fetch origin
-          git checkout main
-
-          # Create README content line by line
-          echo "# Luddite Launcher" > README.md
-          echo "" >> README.md
-          echo "![Luddite Logo](Doc/images/LudditeLogo.png)" >> README.md
-          echo "" >> README.md
-          echo "## Documentation" >> README.md
-          echo "" >> README.md
-          echo "The full project documentation is available in the following formats:" >> README.md
-          echo "" >> README.md
-          echo "* [Download PDF Documentation](https://github.com/${{ github.repository_owner }}/LudditeLauncher/releases/download/${{ github.ref_name }}/LauncherDocumentation.pdf) (from latest release)" >> README.md
-          echo "" >> README.md
-          echo "## Download" >> README.md
-          echo "" >> README.md
-          echo "You can download the latest APK from the [releases page](https://github.com/${{ github.repository_owner }}/LudditeLauncher/releases/latest)." >> README.md
-          echo "" >> README.md
-          echo "## Version" >> README.md
-          echo "" >> README.md
-          echo "Latest version: ${{ env.VERSION }}" >> README.md
-
-          # Configure git
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-          # Commit and push changes
-          git add README.md
-          git commit -m "Update README with links to version ${{ env.VERSION }} [skip ci]"
-          git push origin main
-
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add README.md
-          git commit -m "Update README with links to version ${{ env.VERSION }} [skip ci]"
-          git push
