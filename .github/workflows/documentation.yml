@@ -25,5 +25,3 @@ jobs:
         with:
           pdf_build: true
           source_dir: Doc/
-          ebook_main_adoc_file: LauncherDocumentation
-          asciidoctor_params: --attribute=toc=left --attribute=toclevels=3
