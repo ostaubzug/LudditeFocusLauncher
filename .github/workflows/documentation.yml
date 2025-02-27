@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4.6.1
+      - uses: actions/checkout@v4.2.2
 
       - name: asciidoctor-ghpages
-        uses: manoelcampos/asciidoctor-ghpages-action@v2
+        uses: manoelcampos/asciidoctor-ghpages-action@v4.6.1
         with:
           pdf_build: true
           # asciidoctor_params: --attribute=nofooter
