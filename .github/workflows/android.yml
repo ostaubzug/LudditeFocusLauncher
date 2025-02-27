@@ -85,10 +85,17 @@ jobs:
 
 
       - name: Upload APK to Infomaniak Object Storage
-        uses: aws-actions/aws-s3-cp@v2
+        uses: jakejarvis/s3-sync-action@master
         with:
-          source: android/app/build/outputs/apk/release/ludditelauncher-aligned.apk
-          destination: s3://${{ secrets.S3_BUCKET_NAME }}/ludditelauncher-${{ env.VERSION }}.apk
-          endpoint: ${{ secrets.S3_ENDPOINT_URL }}
-          access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          args: --no-verify-ssl
+        env:
+          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_ENDPOINT: ${{ secrets.S3_ENDPOINT_URL }}
+          AWS_REGION: 'eu-central-1'  # Or your preferred region
+          SOURCE_DIR: 'android/app/build/outputs/apk/release'
+          DEST_DIR: ''
+          FILE_PATTERN: 'ludditelauncher-aligned.apk'
+          DEST_FILENAME: 'ludditelauncher-${{ env.VERSION }}.apk'
+
