@@ -83,11 +83,12 @@ jobs:
           name: "LudditeLauncher ${{ env.VERSION }}"
           tag_name: ${{ github.ref_name }}
 
-      - name: Upload APK to Infomaniak Object Storage
-        run: |
-          APK_FILE="android/app/build/outputs/apk/release/ludditelauncher-aligned.apk"
-          S3_URI="s3://${{ secrets.S3_BUCKET_NAME }}/ludditelauncher-${VERSION}.apk"
 
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws --endpoint-url=${{ secrets.S3_ENDPOINT_URL }} s3 cp $APK_FILE $S3_URI
+      - name: Upload APK to Infomaniak Object Storage
+        uses: aws-actions/aws-s3-cp@v2
+        with:
+          source: android/app/build/outputs/apk/release/ludditelauncher-aligned.apk
+          destination: s3://${{ secrets.S3_BUCKET_NAME }}/ludditelauncher-${{ env.VERSION }}.apk
+          endpoint: ${{ secrets.S3_ENDPOINT_URL }}
+          access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
