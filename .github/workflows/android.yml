@@ -23,7 +23,7 @@ jobs:
       - name: Install packages using apt-get
         run: |
           sudo apt-get update
-          sudo apt-get install -y zipalign
+          sudo apt-get install -y zipalign awscli
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -42,7 +42,6 @@ jobs:
       - name: Decode Keystore
         run: |
           echo ${{ secrets.KEYSTORE_BASE64 }} | base64 -d > $GITHUB_WORKSPACE/keystore.jks
-          ls -la $GITHUB_WORKSPACE
 
       - name: Build Android APK
         run: |
@@ -69,7 +68,24 @@ jobs:
           cd android/app/build/outputs/apk/release
           apksigner verify ludditelauncher-aligned.apk
 
+      - name: Prepare Version Variables
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"   # e.g., "v1.0.0"
+          VERSION=${TAG_NAME#v}                  # strip leading "v", result = "1.0.0"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: android/app/build/outputs/apk/release/ludditelauncher-aligned.apk
+          name: "LudditeLauncher ${{ env.VERSION }}"
+          tag_name: ${{ github.ref_name }}
+
+      - name: Upload APK to Infomaniak Object Storage
+        run: |
+          APK_FILE="android/app/build/outputs/apk/release/ludditelauncher-aligned.apk"
+          S3_URI="s3://${{ secrets.S3_BUCKET_NAME }}/ludditelauncher-${VERSION}.apk"
+
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws --endpoint-url=${{ secrets.S3_ENDPOINT_URL }} s3 cp $APK_FILE $S3_URI
