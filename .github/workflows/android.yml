@@ -115,7 +115,7 @@ jobs:
         if: env.RELEASE_TAG == 'true'
         run: |
           # Create a README with documentation links
-          cat > README.md << EOF
+          cat > README.md << 'EOT'
 # Luddite Launcher
 
   ![Luddite Logo](Doc/images/LudditeLogo.png)
@@ -124,16 +124,21 @@ jobs:
 
 The full project documentation is available in the following formats:
 
-  * [Download PDF Documentation](https://github.com/${{ github.repository_owner }}/LudditeLauncher/releases/download/${{ github.ref_name }}/LauncherDocumentation.pdf) (from latest release)
+  * [Download PDF Documentation](https://github.com/OWNER/LudditeLauncher/releases/download/TAG/LauncherDocumentation.pdf) (from latest release)
 
   ## Download
 
-  You can download the latest APK from the [releases page](https://github.com/${{ github.repository_owner }}/LudditeLauncher/releases/latest).
+  You can download the latest APK from the [releases page](https://github.com/OWNER/LudditeLauncher/releases/latest).
 
 ## Version
 
-Latest version: ${{ env.VERSION }}
-  EOF
+Latest version: VERSION
+  EOT
+
+  # Replace placeholders with actual values
+  sed -i "s|OWNER|${{ github.repository_owner }}|g" README.md
+  sed -i "s|TAG|${{ github.ref_name }}|g" README.md
+  sed -i "s|VERSION|${{ env.VERSION }}|g" README.md
 
   git config --global user.name "GitHub Actions"
   git config --global user.email "actions@github.com"
