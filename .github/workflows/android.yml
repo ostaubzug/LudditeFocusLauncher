@@ -2,8 +2,6 @@ name: Android CI
 
 on:
   push:
-    branches:
-      - main
     tags:
       - "*"
 
@@ -77,8 +75,17 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release
+        uses: softprops/action-gh-release@v2
         with:
           files: android/app/build/outputs/apk/release/ludditelauncher-aligned.apk
           name: "LudditeLauncher ${{ env.VERSION }}"
           tag_name: ${{ github.ref_name }}
+
+      - name: Upload APK to Infomaniak Object Storage
+        run: |
+          APK_FILE="android/app/build/outputs/apk/release/ludditelauncher-aligned.apk"
+          S3_URI="s3://${{ secrets.S3_BUCKET_NAME }}/ludditelauncher-${VERSION}.apk"
+
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws --endpoint-url=${{ secrets.S3_ENDPOINT_URL }} s3 cp $APK_FILE $S3_URI
