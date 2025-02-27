@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { SearchComponent } from '../search/search.component';
 import { NgOptimizedImage } from '@angular/common';
+import { QuickAccessBarComponent } from '../quick-access-bar/quick-access-bar.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [SearchComponent, NgOptimizedImage],
+  imports: [SearchComponent, NgOptimizedImage, QuickAccessBarComponent],
   template: `
     <div class="min-h-screen relative">
       <div class="absolute inset-0 -z-10">
@@ -23,6 +24,9 @@ import { NgOptimizedImage } from '@angular/common';
       <div class="relative z-10">
         <app-search></app-search>
       </div>
+
+      <!-- Quick Access Bar -->
+      <app-quick-access-bar></app-quick-access-bar>
     </div>
   `
 })
