@@ -37,7 +37,7 @@ jobs:
           cp -r Doc/images docs/
 
       - name: Upload Documentation as Artifacts
-        uses: actions/upload-artifact
+        uses: actions/upload-artifact@v4.6.1
         with:
           name: documentation
           path: docs/
