@@ -87,7 +87,8 @@ jobs:
         uses: Noelware/s3-action@2.2.7
         with:
           files: android/app/build/outputs/apk/release/ludditelauncher-aligned.apk
-          access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret-key: ${{ secrets.S3_ENDPOINT_URL }}
-          endpoint: ${{ secrets.S3_ENDPOINT_URL }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # This was incorrect in your original file
+          aws-endpoint: ${{ secrets.S3_ENDPOINT_URL }}
           bucket: ${{ secrets.S3_BUCKET_NAME }}
+          aws-region: 'default-region' # Add this parameter (required for most S3 actions)
