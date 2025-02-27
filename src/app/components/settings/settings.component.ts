@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CapacitorHttp } from '@capacitor/core';
 import { Router } from '@angular/router';
 import { AppListService } from '../../services/applist.service';
+import { AuthService } from '../../services/auth.service';
 
 interface WishlistItem {
   name: string;
@@ -30,6 +31,20 @@ interface WishlistItem {
             </svg>
           </button>
           <h1 class="text-xl font-bold text-gray-900">Luddite Settings</h1>
+
+          <!-- Current User Display -->
+          <div class="ml-auto flex items-center">
+            <span *ngIf="currentUser" class="text-sm text-gray-600 mr-2">{{currentUser.username}}</span>
+            <button
+              (click)="logout()"
+              class="p-2 rounded-full text-gray-600 hover:bg-gray-100 transition-colors border border-gray-200"
+              aria-label="Logout"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -154,6 +169,27 @@ interface WishlistItem {
           </div>
         </div>
       </div>
+
+      <!-- Account Section -->
+      <div class="max-w-md mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <h2 class="text-lg font-semibold mb-4 text-gray-900">Account</h2>
+
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-600">Signed in as <span class="font-medium text-gray-900">{{currentUser?.username || 'Guest'}}</span></p>
+          </div>
+
+          <button
+            (click)="logout()"
+            class="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg px-4 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+            </svg>
+            Sign Out
+          </button>
+        </div>
+      </div>
     </div>
   `
 })
@@ -176,13 +212,27 @@ export class SettingsComponent {
   syncError = false;
   syncErrorMessage = '';
 
+  // Current user information
+  currentUser: { username: string } | null = null;
+
   constructor(
     private router: Router,
-    private appListService: AppListService
-  ) {}
+    private appListService: AppListService,
+    private authService: AuthService
+  ) {
+    // Get current user information
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+    });
+  }
 
   goBack() {
     this.router.navigate(['']);
+  }
+
+  logout() {
+    this.authService.logout();
+    // The app component will handle redirecting to the login screen
   }
 
   async submitWishlistItem() {
@@ -197,10 +247,14 @@ export class SettingsComponent {
     this.submitError = false;
 
     try {
+      // Get auth token
+      const token = await this.authService.getToken();
+
       const response = await CapacitorHttp.post({
         url: 'http://195.15.192.3:3000/api/wishlist',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
         },
         data: this.wishlistItem
       });

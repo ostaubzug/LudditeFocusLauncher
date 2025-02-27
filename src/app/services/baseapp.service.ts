@@ -1,8 +1,11 @@
 import { BehaviorSubject, Observable, from } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, tap, switchMap } from 'rxjs/operators';
 import { Preferences } from '@capacitor/preferences';
 import { CapacitorHttp } from '@capacitor/core';
+import { AuthService } from './auth.service';
+import { Injectable } from '@angular/core';
 
+@Injectable()
 export abstract class BaseappService<T> {
   protected abstract get STORAGE_KEY(): string;
   protected abstract get API_URL(): string;
@@ -10,7 +13,7 @@ export abstract class BaseappService<T> {
   private appsSubject = new BehaviorSubject<T[]>([]);
   public apps$ = this.appsSubject.asObservable();
 
-  constructor() {
+  constructor(protected authService: AuthService) {
     this.loadFromStorage();
   }
 
@@ -46,16 +49,24 @@ export abstract class BaseappService<T> {
   syncWithServer(): Observable<T[]> {
     console.log(`Attempting to sync with server: ${this.API_URL}`);
 
-    return from(CapacitorHttp.get({
-      url: this.API_URL,
-      headers: {
-        'Accept': 'application/json'
-      }
-    })).pipe(
+    return from(this.authService.getToken()).pipe(
+      switchMap(token => {
+        return from(CapacitorHttp.get({
+          url: this.API_URL,
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+          }
+        }));
+      }),
       map(response => {
         console.log('Server response:', response);
         if (response.status === 200) {
           return response.data as T[];
+        } else if (response.status === 401) {
+          // Handle unauthorized error
+          this.authService.logout(); // Force logout if token is invalid
+          throw new Error('Authentication required');
         } else {
           throw new Error(`API error: ${response.status}`);
         }
