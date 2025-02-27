@@ -82,24 +82,3 @@ jobs:
           files: android/app/build/outputs/apk/release/ludditelauncher-aligned.apk
           name: "LudditeLauncher ${{ env.VERSION }}"
           tag_name: ${{ github.ref_name }}
-
-      - name: Install AWS CLI
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
-          aws --version
-
-      - name: Configure AWS Credentials
-        run: |
-          mkdir -p ~/.aws
-          echo "[default]" > ~/.aws/credentials
-          echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
-          echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
-          echo "[default]" > ~/.aws/config
-          echo "region = eu-central-1" >> ~/.aws/config
-
-      - name: Upload APK to Infomaniak
-        run: |
-          aws s3 cp android/app/build/outputs/apk/release/ludditelauncher-aligned.apk s3://${{ secrets.S3_BUCKET_NAME }}/ludditelauncher-aligned.apk \
-            --endpoint-url ${{ secrets.S3_ENDPOINT_URL }}
