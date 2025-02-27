@@ -114,34 +114,27 @@ jobs:
       - name: Update README
         if: env.RELEASE_TAG == 'true'
         run: |
-          # Create a README with documentation links
-          cat > README.md << 'EOT'
-# Luddite Launcher
+          # Create README content line by line
+          echo "# Luddite Launcher" > README.md
+          echo "" >> README.md
+          echo "![Luddite Logo](Doc/images/LudditeLogo.png)" >> README.md
+          echo "" >> README.md
+          echo "## Documentation" >> README.md
+          echo "" >> README.md
+          echo "The full project documentation is available in the following formats:" >> README.md
+          echo "" >> README.md
+          echo "* [Download PDF Documentation](https://github.com/${{ github.repository_owner }}/LudditeLauncher/releases/download/${{ github.ref_name }}/LauncherDocumentation.pdf) (from latest release)" >> README.md
+          echo "" >> README.md
+          echo "## Download" >> README.md
+          echo "" >> README.md
+          echo "You can download the latest APK from the [releases page](https://github.com/${{ github.repository_owner }}/LudditeLauncher/releases/latest)." >> README.md
+          echo "" >> README.md
+          echo "## Version" >> README.md
+          echo "" >> README.md
+          echo "Latest version: ${{ env.VERSION }}" >> README.md
 
-  ![Luddite Logo](Doc/images/LudditeLogo.png)
-
-## Documentation
-
-The full project documentation is available in the following formats:
-
-  * [Download PDF Documentation](https://github.com/OWNER/LudditeLauncher/releases/download/TAG/LauncherDocumentation.pdf) (from latest release)
-
-  ## Download
-
-  You can download the latest APK from the [releases page](https://github.com/OWNER/LudditeLauncher/releases/latest).
-
-## Version
-
-Latest version: VERSION
-  EOT
-
-  # Replace placeholders with actual values
-  sed -i "s|OWNER|${{ github.repository_owner }}|g" README.md
-  sed -i "s|TAG|${{ github.ref_name }}|g" README.md
-  sed -i "s|VERSION|${{ env.VERSION }}|g" README.md
-
-  git config --global user.name "GitHub Actions"
-  git config --global user.email "actions@github.com"
-  git add README.md
-  git commit -m "Update README with links to version ${{ env.VERSION }} [skip ci]"
-  git push
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add README.md
+          git commit -m "Update README with links to version ${{ env.VERSION }} [skip ci]"
+          git push
