@@ -1,0 +1,24 @@
+graph TB
+  subgraph "Luddite Launcher"
+    A[App Component]
+    B[Home Component]
+    C[Search Component]
+    D[Login Component]
+    E[Settings Component]
+    F[Quick Access Bar Component]
+    G[Auth Service]
+    H[App List Service]
+    I[WebApp List Service]
+    J[NativeApp List Service]
+  end
+
+  A --> B
+  A --> D
+  B --> C
+  B --> F
+  H --> I
+  H --> J
+  G --> A
+  H --> C
+  H --> E
+  F --> J

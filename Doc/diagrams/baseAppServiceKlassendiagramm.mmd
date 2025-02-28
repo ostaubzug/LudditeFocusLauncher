@@ -1,0 +1,24 @@
+classDiagram
+  class BaseAppService {
+    #STORAGE_KEY: string
+    #API_URL: string
+    -appsSubject: BehaviorSubject
+    +apps$: Observable
+    #loadFromStorage()
+    #saveToStorage()
+    +syncWithServer()
+    +getAppList()
+  }
+
+  class WebAppListService {
+    #STORAGE_KEY: string
+    #API_URL: string
+  }
+
+  class NativeAppListService {
+    #STORAGE_KEY: string
+    #API_URL: string
+  }
+
+  BaseAppService <|-- WebAppListService: erbt von
+  BaseAppService <|-- NativeAppListService: erbt von

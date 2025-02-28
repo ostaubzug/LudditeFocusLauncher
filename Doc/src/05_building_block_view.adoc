@@ -40,32 +40,7 @@ Der Luddite Launcher ist der zentrale Baustein des Systems und besteht aus mehre
 
 ### Whitebox Luddite Launcher
 
-```mermaid
-graph TB
-    subgraph "Luddite Launcher"
-        A[App Component]
-        B[Home Component]
-        C[Search Component]
-        D[Login Component]
-        E[Settings Component]
-        F[Quick Access Bar Component]
-        G[Auth Service]
-        H[App List Service]
-        I[WebApp List Service]
-        J[NativeApp List Service]
-    end
-
-    A --> B
-    A --> D
-    B --> C
-    B --> F
-    H --> I
-    H --> J
-    G --> A
-    H --> C
-    H --> E
-    F --> J
-```
+image::diagrams/whitebox.png[Whitebox]
 
 #### App Component
 
@@ -174,36 +149,7 @@ graph TB
 
 Die Search-Komponente ist eine der wichtigsten Schnittstellen für Benutzer und verwaltet die Suche und den Zugriff auf Apps.
 
-```mermaid
-classDiagram
-    class SearchComponent {
-        -searchTerm: string
-        -filteredAppList: App[]
-        -isFocused: boolean
-        +filterApps()
-        +handleItemClick(app)
-        +openApp(app)
-        +openSettings()
-    }
-
-    class AppListService {
-        +apps$: Observable~App[]~
-        +syncAll()
-    }
-
-    class InAppBrowser {
-        +openInWebView()
-        +close()
-    }
-
-    class AppLauncher {
-        +openUrl()
-    }
-
-    SearchComponent --> AppListService: nutzt
-    SearchComponent --> InAppBrowser: öffnet WebApps
-    SearchComponent --> AppLauncher: öffnet NativeApps
-```
+image::diagrams/searchComponentClassDiagram.png[Klassendiagramm]
 
 **Prozessablauf beim App-Start:**
 
@@ -220,65 +166,13 @@ classDiagram
 
 Der Auth Service verwaltet den gesamten Authentifizierungsprozess und ist entscheidend für die Zugriffskontrolle.
 
-```mermaid
-classDiagram
-    class AuthService {
-        -currentUserSubject: BehaviorSubject
-        -isAuthenticatedSubject: BehaviorSubject
-        +currentUser$: Observable
-        +isAuthenticated$: Observable
-        +login(username, password)
-        +register(username, password)
-        +logout()
-        +getToken()
-        +verifyToken()
-    }
-
-    class CapacitorPreferences {
-        +get()
-        +set()
-        +remove()
-    }
-
-    class CapacitorHttp {
-        +post()
-        +get()
-    }
-
-    AuthService --> CapacitorPreferences: speichert Token
-    AuthService --> CapacitorHttp: API-Anfragen
-```
+image::diagrams/authserviceKlassendiagramm.png[Auth Service Klasssendiagramm]
 
 ### Whitebox WebApp und NativeApp Services
 
 Die App-Services verwalten den Zugriff auf verschiedene App-Typen und teilen gemeinsame Funktionalität über den BaseApp Service.
 
-```mermaid
-classDiagram
-    class BaseAppService {
-        #STORAGE_KEY: string
-        #API_URL: string
-        -appsSubject: BehaviorSubject
-        +apps$: Observable
-        #loadFromStorage()
-        #saveToStorage()
-        +syncWithServer()
-        +getAppList()
-    }
-
-    class WebAppListService {
-        #STORAGE_KEY: string
-        #API_URL: string
-    }
-
-    class NativeAppListService {
-        #STORAGE_KEY: string
-        #API_URL: string
-    }
-
-    BaseAppService <|-- WebAppListService: erbt von
-    BaseAppService <|-- NativeAppListService: erbt von
-```
+image:diagrams/baseAppServiceKlassendiagramm.png[BaseApp Service Klassendiagramm]
 
 ## 5.4 Technische Schnittstellen
 

@@ -1,0 +1,28 @@
+classDiagram
+  class SearchComponent {
+    -searchTerm: string
+    -filteredAppList: App[]
+    -isFocused: boolean
+    +filterApps()
+    +handleItemClick(app)
+    +openApp(app)
+    +openSettings()
+  }
+
+  class AppListService {
+    +apps$: Observable~App[]~
+    +syncAll()
+  }
+
+  class InAppBrowser {
+    +openInWebView()
+    +close()
+  }
+
+  class AppLauncher {
+    +openUrl()
+  }
+
+  SearchComponent --> AppListService: nutzt
+  SearchComponent --> InAppBrowser: öffnet WebApps
+  SearchComponent --> AppLauncher: öffnet NativeApps
