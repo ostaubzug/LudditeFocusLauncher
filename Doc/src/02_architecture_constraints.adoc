@@ -1,9 +1,37 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-architecture-constraints]]
-== Architecture Constraints
+== Randbedingungen
 
+Die Entwicklung des Luddite Launchers unterliegt verschiedenen technischen und organisatorischen Randbedingungen, die im Folgenden zusammengefasst werden.
 
-ifdef::arc42help[]
+=== Technische Randbedingungen
 
-endif::arc42help[]
+[options="header",cols="1,3"]
+|===
+|Randbedingung|Erläuterung
+|LineageOS als Basis|Die Anwendung muss auf einem modifizierten LineageOS (für Google Pixel 6) lauffähig sein, bei dem der Standard-Browser entfernt wurde
+|Angular & Capacitor|Die Frontend-Entwicklung erfolgt mit Angular und Capacitor für die Erstellung der hybriden mobilen App
+|Capacitor InAppBrowser Plugin|Das Capacitor InAppBrowser Plugin wird für die kontrollierte Darstellung von Web-Inhalten verwendet
+|Node.js Backend|Das Backend wird mit Node.js implementiert
+|MongoDB|MongoDB wird als Datenbank für die Speicherung von Benutzerdaten, App-Listen und Wunschlisten verwendet
+|===
+
+=== Organisatorische Randbedingungen
+
+[options="header",cols="1,3"]
+|===
+|Randbedingung|Erläuterung
+|WebLab|Das Projekt wird im Rahmen eines Schulprojekts durchgeführt, mit entsprechenden Dokumentationsanforderungen
+|Hosting|Die Backend-Container und MongoDB werden auf einem Infomaniak Server in einer Openstack Public Cloud Infrastruktur gehostet
+|===
+
+=== Konventionen
+
+[options="header",cols="1,3"]
+|===
+|Konvention|Erläuterung
+|Versionskontrolle|Das Projekt wird mit Git verwaltet, mit GitHub Actions für CI/CD
+|Dokumentation|Die Architektur wird mit arc42 dokumentiert und via CI automatisiert deployed.
+|Codestruktur|Angular-Komponenten werden nach Funktionalität organisiert
+|===
