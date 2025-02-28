@@ -20,27 +20,17 @@ jobs:
           git config --global user.email "actions@github.com"
           echo "GH_TOKEN=${{ github.token }}" >> $GITHUB_ENV
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install Mermaid CLI and dependencies
+      - name: Find Mermaid diagrams and prepare for conversion
         run: |
-          npm install -g @mermaid-js/mermaid-cli
-          sudo apt-get update
-          sudo apt-get install -y libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxi6 libxtst6 libnss3 libcups2 libxss1 libxrandr2 libasound2 libatk1.0-0 libatk-bridge2.0-0 libpangocairo-1.0-0 libgtk-3-0 libgbm1
-
-      - name: Find and convert Mermaid diagrams
-        run: |
-          # Create a directory for the generated images if it doesn't exist
+          # Create directories
           mkdir -p Doc/images/mermaid
+          mkdir -p temp_mermaid
 
           # Find all .adoc files in the Doc directory
           find Doc -name "*.adoc" -type f | while read file; do
             echo "Processing $file"
 
-            # Extract Mermaid diagrams from the file and convert them to PNG
+            # Extract Mermaid diagrams from the file
             grep -n "\[mermaid\]" "$file" | while read -r mermaid_line; do
               line_num=$(echo "$mermaid_line" | cut -d: -f1)
 
@@ -56,33 +46,51 @@ jobs:
               diagram_content=$(sed -n "$((line_num+1)),$((end_line_num-1))p" "$file")
 
               # Generate a unique filename based on file and line number
-              diagram_filename="mermaid_$(basename "$file" .adoc)_$line_num.png"
+              diagram_basename="mermaid_$(basename "$file" .adoc)_$line_num"
 
               # Write the diagram to a temporary file
-              echo "$diagram_content" > temp_diagram.mmd
+              echo "$diagram_content" > "temp_mermaid/${diagram_basename}.mmd"
 
-              echo "Converting diagram at line $line_num to $diagram_filename"
+              # Create a record of which file and line to modify
+              echo "$file:$line_num:$end_line_num:${diagram_basename}.png" >> temp_mermaid/mappings.txt
 
-              # Convert to PNG using mmdc with the --no-sandbox option
-              mmdc -i temp_diagram.mmd -o "Doc/images/mermaid/$diagram_filename" -t dark --puppeteerConfig '{"args": ["--no-sandbox", "--disable-setuid-sandbox"]}'
-
-              if [ $? -eq 0 ]; then
-                echo "Successfully converted diagram to PNG"
-
-                # Replace the Mermaid block with an image include in the file
-                sed -i "${line_num}s/\[mermaid\]/image::images\/mermaid\/$diagram_filename\[\]/" "$file"
-                sed -i "${end_line_num}d" "$file"
-                for (( i=line_num+1; i<end_line_num; i++ )); do
-                  sed -i "$((line_num+1))d" "$file"
-                done
-              else
-                echo "Failed to convert diagram to PNG"
-              fi
+              echo "Extracted diagram from $file line $line_num to temp_mermaid/${diagram_basename}.mmd"
             done
           done
 
+      - name: Convert Mermaid diagrams to PNG
+        uses: jpickwell/action-mermaid@v1
+        with:
+          input-glob: 'temp_mermaid/*.mmd'
+          output-dir: 'Doc/images/mermaid'
+          config: |
+            {
+              "theme": "dark"
+            }
+
+      - name: Update AsciiDoc files with image references
+        run: |
+          if [ -f temp_mermaid/mappings.txt ]; then
+            cat temp_mermaid/mappings.txt | while read mapping; do
+              IFS=':' read -r file line_num end_line_num image_file <<< "$mapping"
+
+              echo "Updating $file to replace Mermaid block with image at line $line_num"
+
+              # Replace the Mermaid block with an image include
+              sed -i "${line_num}s/\[mermaid\]/image::images\/mermaid\/$image_file\[\]/" "$file"
+              sed -i "${end_line_num}d" "$file"
+
+              # Delete the diagram content lines
+              for (( i=line_num+1; i<end_line_num; i++ )); do
+                sed -i "$((line_num+1))d" "$file"
+              done
+            done
+          else
+            echo "No Mermaid diagrams found to replace"
+          fi
+
           # Clean up
-          rm -f temp_diagram.mmd
+          rm -rf temp_mermaid
 
       - name: asciidoctor-ghpages
         uses: manoelcampos/asciidoctor-ghpages-action@v2.3.0
