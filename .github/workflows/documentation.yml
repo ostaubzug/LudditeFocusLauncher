@@ -27,51 +27,70 @@ jobs:
           find Doc -name "*.adoc" -type f | while read file; do
             echo "Processing $file: $(basename "$file")"
 
-            grep -n "\[mermaid\]" "$file" | while read -r mermaid_line; do
-              line_num=$(echo "$mermaid_line" | cut -d: -f1)
+            # Process the file line by line to find mermaid blocks
+            line_num=0
+            in_mermaid_block=false
+            mermaid_start=0
+            delimiter_line=0
+            content=""
 
-              delimiter_line=$((line_num + 1))
+            while IFS= read -r line; do
+              line_num=$((line_num + 1))
 
-              if ! sed -n "${delimiter_line}p" "$file" | grep -q "^\.\.\.\."; then
-                echo "Warning: Expected '....' delimiter not found after [mermaid] at line $line_num in $file"
+              if [[ "$line" == *"[mermaid]"* ]] && [[ "$in_mermaid_block" == "false" ]]; then
+                in_mermaid_block=true
+                mermaid_start=$line_num
+                echo "Found [mermaid] tag at line $line_num"
                 continue
               fi
 
-              end_delimiter=$(tail -n +$((delimiter_line + 1)) "$file" | grep -n "^\.\.\.\.")
-              if [ -z "$end_delimiter" ]; then
-                echo "Warning: Could not find closing '....' delimiter for diagram at line $line_num in $file"
+              if [[ "$in_mermaid_block" == "true" ]] && [[ "$delimiter_line" == "0" ]] && [[ "$line" == "...."* ]]; then
+                delimiter_line=$line_num
+                echo "Found starting delimiter at line $line_num"
                 continue
               fi
 
-              end_delimiter_relative_line=$(echo "$end_delimiter" | cut -d: -f1)
-              end_line_num=$((delimiter_line + end_delimiter_relative_line))
+              if [[ "$in_mermaid_block" == "true" ]] && [[ "$delimiter_line" != "0" ]] && [[ "$line" == "...."* ]]; then
+                echo "Found ending delimiter at line $line_num"
 
-              echo "Found Mermaid block from line $line_num to $end_line_num"
+                # Process the Mermaid diagram
+                diagram_basename="mermaid_$(basename "$file" .adoc)_${mermaid_start}"
+                echo "$content" > "${diagram_basename}.mmd"
 
-              diagram_content=$(sed -n "$((delimiter_line + 1)),$((end_line_num - 1))p" "$file")
+                docker run --rm -v $(pwd):/data minlag/mermaid-cli:latest -i /data/${diagram_basename}.mmd -o /data/Doc/images/mermaid/${diagram_basename}.png -t dark -b transparent
 
-              diagram_basename="mermaid_$(basename "$file" .adoc)_$line_num"
+                if [ -f "Doc/images/mermaid/${diagram_basename}.png" ]; then
+                  echo "Successfully created PNG"
 
-              echo "$diagram_content" > "${diagram_basename}.mmd"
+                  # Create temporary file for editing
+                  temp_file="${file}.temp"
+                  awk -v start="$mermaid_start" -v end="$line_num" -v img="image::images/mermaid/${diagram_basename}.png[]" '
+                    NR == start {print img; next}
+                    NR > start && NR <= end {next}
+                    {print}
+                  ' "$file" > "$temp_file"
 
-              docker run --rm -v $(pwd):/data minlag/mermaid-cli:latest -i /data/${diagram_basename}.mmd -o /data/Doc/images/mermaid/${diagram_basename}.png -t dark -b transparent
+                  mv "$temp_file" "$file"
+                  echo "Updated file with image reference"
+                else
+                  echo "ERROR: PNG file was not created"
+                fi
 
-              if [ -f "Doc/images/mermaid/${diagram_basename}.png" ]; then
-                echo "Successfully created PNG at Doc/images/mermaid/${diagram_basename}.png"
+                rm -f "${diagram_basename}.mmd"
 
-                sed -i "${line_num}s|\[mermaid\]|image::images/mermaid/${diagram_basename}.png\[\]|" "$file"
-
-                for (( i=delimiter_line; i<=end_line_num; i++ )); do
-                  sed -i "${delimiter_line}d" "$file"
-                done
-
-                echo "Updated file with image reference"
-              else
-                echo "ERROR: PNG file was not created"
+                # Reset for next block
+                in_mermaid_block=false
+                mermaid_start=0
+                delimiter_line=0
+                content=""
+                continue
               fi
 
-              rm -f "${diagram_basename}.mmd"
-            done
+              if [[ "$in_mermaid_block" == "true" ]] && [[ "$delimiter_line" != "0" ]]; then
+                content="${content}${line}"$'\n'
+              fi
+
+            done < "$file"
           done
 
           echo "Generated images:"
