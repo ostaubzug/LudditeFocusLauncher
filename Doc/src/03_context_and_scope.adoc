@@ -8,20 +8,7 @@ ifndef::imagesdir[:imagesdir: ../images]
 Der Luddite Launcher fungiert als zentrale Schnittstelle zwischen dem Benutzer und den verschiedenen Anwendungsmöglichkeiten. Im Gegensatz zu herkömmlichen Android-Launchern kontrolliert er den Zugang zu Webinhalten und bietet nur Zugriff auf ausgewählte Websites und native Anwendungen.
 
 .Fachlicher Kontext des Luddite Launchers
-[mermaid]
-....
-graph TB
-    User(("Benutzer"))
-    Launcher["Luddite Launcher"]
-    WebApps["ausgewählte Websites"]
-    NativeApps["Native Apps<br/>(WhatsApp, Proton Mail, etc.)"]
-    Backend["Backend-Services"]
-
-    User -->|nutzt| Launcher
-    Launcher -->|öffnet kontrolliert| WebApps
-    Launcher -->|startet| NativeApps
-    Launcher <-->|synchronisiert App-Liste,<br/>Authentifizierung| Backend
-....
+image::diagrams/context_diagram.svg[Fachlicher Kontext]
 
 Die fachlichen Schnittstellen umfassen:1
 
@@ -40,28 +27,8 @@ Die fachlichen Schnittstellen umfassen:1
 Der Luddite Launcher ist in eine technische Umgebung eingebettet, die aus mehreren Komponenten besteht.
 
 .Technischer Kontext des Luddite Launchers
-[mermaid]
-....
-graph TB
-    User(("Benutzer"))
+image::diagrams/technical_context.svg[Technischer Kontext]
 
-    subgraph "Android Gerät"
-        Launcher["Luddite Launcher App<br/>(Angular, Capacitor)"]
-        Browser["InAppBrowser Plugin<br/>(Capacitor)"]
-        Intent["Native App Intent<br/>(Android)"]
-    end
-
-    subgraph "Infomaniak Server"
-        Backend["Node.js Backend<br/>(Node.js, Next.js)"]
-        MongoDB[(MongoDB)]
-    end
-
-    User -->|interagiert mit| Launcher
-    Launcher -->|öffnet Web-Apps| Browser
-    Launcher -->|startet native Apps| Intent
-    Launcher <-->|HTTP/REST| Backend
-    Backend <-->|liest/schreibt Daten| MongoDB
-....
 
 Die technischen Schnittstellen umfassen:
 

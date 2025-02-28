@@ -1,0 +1,19 @@
+graph TB
+    User(("Benutzer"))
+
+    subgraph "Android Device"
+        Launcher["Luddite Launcher App<br/>(Angular, Capacitor)"]
+        Browser["InAppBrowser Plugin<br/>(Capacitor)"]
+        Intent["Native App Intent<br/>(Android)"]
+    end
+
+    subgraph "Infomaniak Server"
+        Backend["Node.js Backend<br/>(Node.js, Next.js)"]
+        MongoDB[(MongoDB)]
+    end
+
+    User -->|interagiert mit| Launcher
+    Launcher -->|öffnet Web-Apps| Browser
+    Launcher -->|startet native Apps| Intent
+    Launcher <-->|HTTP/REST| Backend
+    Backend <-->|liest/schreibt Daten| MongoDB
