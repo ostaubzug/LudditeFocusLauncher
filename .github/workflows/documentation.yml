@@ -20,33 +20,8 @@ jobs:
           git config --global user.email "actions@github.com"
           echo "GH_TOKEN=${{ github.token }}" >> $GITHUB_ENV
 
-      - name: Install Java for PlantUML
-        uses: actions/setup-java@v4.7.0
+      - name: asciidoctor-ghpages
+        uses: manoelcampos/asciidoctor-ghpages-action@v2.3.0
         with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Install Graphviz
-        run: sudo apt-get update && sudo apt-get install -y graphviz
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1.221.0
-        with:
-          ruby-version: '3.1'
-
-      - name: Install Asciidoctor and extensions
-        run: |
-          gem install asciidoctor asciidoctor-pdf asciidoctor-diagram
-
-      - name: Convert your documents
-        run: |
-          for file in $(find Doc -name "*.adoc"); do
-            asciidoctor -r asciidoctor-diagram -a imagesdir=./images -a imagesoutdir=./images "$file" -o "${file%.adoc}.html"
-            asciidoctor-pdf -r asciidoctor-diagram -a imagesdir=./images -a imagesoutdir=./images "$file" -o "${file%.adoc}.pdf"
-          done
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4.0.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./Doc
+          pdf_build: true
+          source_dir: Doc/
