@@ -62,9 +62,18 @@ jobs:
                 if [ -f "Doc/images/mermaid/${diagram_basename}.png" ]; then
                   echo "Successfully created PNG"
 
+                  # Get the title from the line before [mermaid] if it exists
+                  title=""
+                  if [ "$mermaid_start" -gt 1 ]; then
+                    prev_line=$(sed -n "$((mermaid_start-1))p" "$file")
+                    if [[ "$prev_line" == "."* ]]; then
+                      title=" \"$prev_line\""
+                    fi
+                  fi
+
                   # Create temporary file for editing
                   temp_file="${file}.temp"
-                  awk -v start="$mermaid_start" -v end="$line_num" -v img="image::images/mermaid/${diagram_basename}.png[]" '
+                  awk -v start="$mermaid_start" -v end="$line_num" -v img="image::images/mermaid/${diagram_basename}.png[]$title" '
                     NR == start {print img; next}
                     NR > start && NR <= end {next}
                     {print}
@@ -93,8 +102,17 @@ jobs:
             done < "$file"
           done
 
+          # List generated images and confirm they exist
           echo "Generated images:"
-          find Doc/images/mermaid -type f -name "*.png" || echo "No images found"
+          find Doc/images/mermaid -type f -name "*.png" | while read img; do
+            file_size=$(stat -c%s "$img")
+            echo "$img ($(($file_size / 1024)) KB)"
+          done
+
+      - name: Debug AsciiDoc files
+        run: |
+          echo "Checking modified AsciiDoc files:"
+          grep -r "image::images/mermaid" Doc/
 
       - name: asciidoctor-ghpages
         uses: manoelcampos/asciidoctor-ghpages-action@v2.3.0
