@@ -11,14 +11,14 @@ find diagrams -name "*.mmd" -type f | while read -r diagram; do
   # Get basename without extension
   basename=$(basename "$diagram" .mmd)
 
-  # Convert to SVG using npx to ensure mmdc can be found
-  npx @mermaid-js/mermaid-cli -i "$diagram" -o "images/diagrams/$basename.svg" -t dark -b transparent
+  # Convert to PNG using npx with light theme
+  npx @mermaid-js/mermaid-cli -i "$diagram" -o "images/diagrams/$basename.png" -t default -b transparent
 
   # Check if conversion was successful
   if [ $? -eq 0 ]; then
-    echo "Created images/diagrams/$basename.svg"
+    echo "Created images/diagrams/$basename.png"
   else
-    echo "Failed to create images/diagrams/$basename.svg"
+    echo "Failed to create images/diagrams/$basename.png"
   fi
 done
 

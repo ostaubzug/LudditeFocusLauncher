@@ -8,7 +8,7 @@ ifndef::imagesdir[:imagesdir: ../images]
 Der Luddite Launcher fungiert als zentrale Schnittstelle zwischen dem Benutzer und den verschiedenen Anwendungsmöglichkeiten. Im Gegensatz zu herkömmlichen Android-Launchern kontrolliert er den Zugang zu Webinhalten und bietet nur Zugriff auf ausgewählte Websites und native Anwendungen.
 
 .Fachlicher Kontext des Luddite Launchers
-image::diagrams/context_diagram.svg[Fachlicher Kontext]
+image::diagrams/context_diagram.png[Fachlicher Kontext]
 
 Die fachlichen Schnittstellen umfassen:1
 
@@ -27,7 +27,7 @@ Die fachlichen Schnittstellen umfassen:1
 Der Luddite Launcher ist in eine technische Umgebung eingebettet, die aus mehreren Komponenten besteht.
 
 .Technischer Kontext des Luddite Launchers
-image::diagrams/technical_context.svg[Technischer Kontext]
+image::diagrams/technical_context.png[Technischer Kontext]
 
 
 Die technischen Schnittstellen umfassen:
