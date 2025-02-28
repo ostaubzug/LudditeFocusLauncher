@@ -34,14 +34,25 @@ jobs:
             mermaid_start=0
             delimiter_line=0
             content=""
+            mermaid_id=""
 
             while IFS= read -r line; do
               line_num=$((line_num + 1))
 
-              if [[ "$line" == *"[mermaid]"* ]] && [[ "$in_mermaid_block" == "false" ]]; then
+              # Check for mermaid tag - match both [mermaid] and [mermaid any text]
+              if [[ "$line" =~ ^\[mermaid.*\]$ ]] && [[ "$in_mermaid_block" == "false" ]]; then
                 in_mermaid_block=true
                 mermaid_start=$line_num
-                echo "Found [mermaid] tag at line $line_num"
+
+                # Extract mermaid ID if present
+                if [[ "$line" =~ ^\[mermaid\ (.*)\]$ ]]; then
+                  mermaid_id="${BASH_REMATCH[1]}"
+                  mermaid_id=$(echo "$mermaid_id" | tr ' ' '_')
+                else
+                  mermaid_id="diagram_$(date +%s%N | md5sum | head -c 8)"
+                fi
+
+                echo "Found mermaid tag at line $line_num with ID: $mermaid_id"
                 continue
               fi
 
@@ -55,9 +66,10 @@ jobs:
                 echo "Found ending delimiter at line $line_num"
 
                 # Process the Mermaid diagram
-                diagram_basename="mermaid_$(basename "$file" .adoc)_${mermaid_start}"
+                diagram_basename="mermaid_$(basename "$file" .adoc)_${mermaid_id}"
                 echo "$content" > "${diagram_basename}.mmd"
 
+                # Run mermaid-cli in Docker to convert to PNG
                 docker run --rm -v $(pwd):/data minlag/mermaid-cli:latest -i /data/${diagram_basename}.mmd -o /data/Doc/images/mermaid/${diagram_basename}.png -t dark -b transparent
 
                 if [ -f "Doc/images/mermaid/${diagram_basename}.png" ]; then
@@ -75,21 +87,12 @@ jobs:
                   # Create temporary file for editing
                   temp_file="${file}.temp"
 
-                  if [ -n "$title" ]; then
-                    # Keep the title line and replace the mermaid block with just the image
-                    awk -v start="$mermaid_start" -v end="$line_num" -v img="image::images/mermaid/${diagram_basename}.png[]" '
-                      NR == start {print img; next}
-                      NR > start && NR <= end {next}
-                      {print}
-                    ' "$file" > "$temp_file"
-                  else
-                    # No title, so replace with image
-                    awk -v start="$mermaid_start" -v end="$line_num" -v img="image::images/mermaid/${diagram_basename}.png[]" '
-                      NR == start {print img; next}
-                      NR > start && NR <= end {next}
-                      {print}
-                    ' "$file" > "$temp_file"
-                  fi
+                  # Replace the mermaid block with an image reference
+                  awk -v start="$mermaid_start" -v end="$line_num" -v img="image::images/mermaid/${diagram_basename}.png[]" '
+                    NR == start {print img; next}
+                    NR > start && NR <= end {next}
+                    {print}
+                  ' "$file" > "$temp_file"
 
                   mv "$temp_file" "$file"
                   echo "Updated file with image reference"
