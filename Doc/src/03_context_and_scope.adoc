@@ -1,31 +1,75 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-context-and-scope]]
-== Context and Scope
+== Kontext und Abgrenzung
 
+=== Fachlicher Kontext
 
-ifdef::arc42help[]
+Der Luddite Launcher fungiert als zentrale Schnittstelle zwischen dem Benutzer und den verschiedenen Anwendungsmöglichkeiten. Im Gegensatz zu herkömmlichen Android-Launchern kontrolliert er den Zugang zu Webinhalten und bietet nur Zugriff auf ausgewählte Websites und native Anwendungen.
 
-endif::arc42help[]
+.Fachlicher Kontext des Luddite Launchers
+[mermaid]
+....
+graph TB
+    User(("Benutzer"))
+    Launcher["Luddite Launcher"]
+    WebApps["ausgewählte Websites"]
+    NativeApps["Native Apps<br/>(WhatsApp, Proton Mail, etc.)"]
+    Backend["Backend-Services"]
 
-=== Business Context
+    User -->|nutzt| Launcher
+    Launcher -->|öffnet kontrolliert| WebApps
+    Launcher -->|startet| NativeApps
+    Launcher <-->|synchronisiert App-Liste,<br/>Authentifizierung| Backend
+....
 
-ifdef::arc42help[]
+Die fachlichen Schnittstellen umfassen:
 
-endif::arc42help[]
+[options="header",cols="1,2,3"]
+|===
+|Schnittstelle|Beschreibung|Daten
+|Web-App-Zugriff|Kontrolliertes Öffnen einer kuratieren Website|URL der Website
+|Native-App-Zugriff|Starten einer installierten nativen Anwendung|Intent zum App-Start
+|App-Liste-Synchronisation|Aktualisieren der verfügbaren Apps vom Backend|Liste der Web-Apps und nativen Apps
+|Authentifizierung|Benutzeranmeldung und -verwaltung|Benutzername, Passwort, Token
+|Wunschliste|Einreichung von Vorschlägen für neue Web-Apps|Name, URL, Kommentar
+|===
 
-**<Diagram or Table>**
+=== Technischer Kontext
 
-**<optionally: Explanation of external domain interfaces>**
+Der Luddite Launcher ist in eine technische Umgebung eingebettet, die aus mehreren Komponenten besteht.
 
-=== Technical Context
+.Technischer Kontext des Luddite Launchers
+[mermaid]
+....
+graph TB
+    User(("Benutzer"))
 
-ifdef::arc42help[]
+    subgraph "Android Gerät"
+        Launcher["Luddite Launcher App<br/>(Angular, Capacitor)"]
+        Browser["InAppBrowser Plugin<br/>(Capacitor)"]
+        Intent["Native App Intent<br/>(Android)"]
+    end
 
-endif::arc42help[]
+    subgraph "Infomaniak Server"
+        Backend["Node.js Backend<br/>(Node.js, Next.js)"]
+        MongoDB[(MongoDB)]
+    end
 
-**<Diagram or Table>**
+    User -->|interagiert mit| Launcher
+    Launcher -->|öffnet Web-Apps| Browser
+    Launcher -->|startet native Apps| Intent
+    Launcher <-->|HTTP/REST| Backend
+    Backend <-->|liest/schreibt Daten| MongoDB
+....
 
-**<optionally: Explanation of technical interfaces>**
+Die technischen Schnittstellen umfassen:
 
-**<Mapping Input/Output to Channels>**
+[options="header",cols="1,2,3"]
+|===
+|Schnittstelle|Technologie|Beschreibung
+|Frontend-Backend-Kommunikation|HTTP/REST-API|Der Launcher kommuniziert mit dem Backend über REST-Endpunkte
+|Web-App-Anzeige|Capacitor InAppBrowser Plugin|Ermöglicht das kontrollierte Öffnen von Websites
+|Native-App-Start|Android Intent API|Startet native Anwendungen über Android-Intents
+|Backend-Datenbank|MongoDB Driver|Verbindung zwischen Node.js Backend und MongoDB
+|===
