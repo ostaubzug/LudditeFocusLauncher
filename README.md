@@ -1,3 +1,5 @@
-https://github:
-com/ostaubzug/LudditeFocusLauncher/blob/gh-pages/ebook:
-pdf:
+# Weblab Launcher
+
+Visit our [documentation website](https://ostaubzug.github.io/LudditeFocusLauncher/) for complete information about this project.
+
+<!-- Rest of your README content -->
