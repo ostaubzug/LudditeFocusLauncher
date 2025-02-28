@@ -1,124 +1,310 @@
-ifndef::imagesdir[:imagesdir: ../images]
+# 5. Bausteinsicht
+
+## 5.1 Whitebox Gesamtsystem
+
+Der Luddite Launcher ist als spezialisierte Benutzeroberfläche (Launcher) für ein modifiziertes Android-System konzipiert, das darauf abzielt, digitale Ablenkungen zu reduzieren. Er arbeitet zusammen mit anderen Komponenten im "Luddite Phone"-Ökosystem, um ein fokussiertes digitales Erlebnis ohne uneingeschränkten Web-Zugang zu bieten.
+
+### Übersichtsdiagramm
+
+image::diagrams/uebersichtsdiagramm.png[Übersichtsdiagramm]
+
+### Motivation
+
+Der Luddite Launcher dient als primäre Benutzeroberfläche für die ablenkungsfreie Smartphone-Umgebung. Durch die Kontrolle darüber, welche Anwendungen und Web-Ressourcen zugänglich sind, hilft er Benutzern, ihren digitalen Konsum zu verwalten und die Abhängigkeit von sozialen Medien zu reduzieren.
+
+### Enthaltene Bausteine
 
-[[section-building-block-view]]
+[options="header"]
+|===
+|Baustein|Beschreibung
+|**Luddite Launcher (Angular + Capacitor)**|Die Hauptanwendung, die die Benutzeroberfläche für den Zugriff auf zugelassene Web-Anwendungen und native Apps bereitstellt
+|**Backend-Dienste (Node.js)**|Stellt Authentifizierung, App-Listen bereit und speichert Benutzereinstellungen und App-Vorschläge
+|**Native Apps-Integration**|Integrationsschicht für den Zugriff auf installierte Android-Anwendungen
+|**Web-Apps-Verwaltung**|Steuert den Zugriff auf vorab genehmigte Web-Anwendungen durch eine eingeschränkte Browser-Umgebung
+|===
 
+### Wichtige Schnittstellen
 
-== Building Block View
+[options="header"]
+|===
+|Schnittstelle|Beschreibung
+|**Backend-API**|REST-API für Authentifizierung, Abrufen von App-Listen und Einreichen von App-Vorschlägen
+|**Capacitor Browser Plugin**|Ermöglicht das Öffnen von kontrollierten WebViews für zugelassene Websites
+|**App Launcher API**|Ermöglicht den Start von nativen Apps über das Android-System
+|**Preferences Storage**|Speichert Benutzereinstellungen und Zustände lokal auf dem Gerät
+|===
 
-ifdef::arc42help[]
+## 5.2 Ebene 2: Whitebox Luddite Launcher
 
-endif::arc42help[]
+Der Luddite Launcher ist der zentrale Baustein des Systems und besteht aus mehreren Angular-Komponenten und Diensten, die zusammenarbeiten, um die Hauptfunktionalitäten bereitzustellen.
 
-=== Whitebox Overall System
+### Whitebox Luddite Launcher
 
-ifdef::arc42help[]
+```mermaid
+graph TB
+    subgraph "Luddite Launcher"
+        A[App Component]
+        B[Home Component]
+        C[Search Component]
+        D[Login Component]
+        E[Settings Component]
+        F[Quick Access Bar Component]
+        G[Auth Service]
+        H[App List Service]
+        I[WebApp List Service]
+        J[NativeApp List Service]
+    end
 
-endif::arc42help[]
+    A --> B
+    A --> D
+    B --> C
+    B --> F
+    H --> I
+    H --> J
+    G --> A
+    H --> C
+    H --> E
+    F --> J
+```
 
-_**<Overview Diagram>**_
+#### App Component
 
-Motivation::
+**Verantwortlichkeiten:**
+- Dient als Root-Komponente der Anwendung
+- Verwaltet den Authentifizierungsstatus
+- Entscheidet, ob Login-Komponente oder Home-Komponente angezeigt wird
 
-_<text explanation>_
+**Schnittstellen:**
+- Interagiert mit dem Auth Service
+- Rendert entweder Login- oder Home-Komponente
 
+#### Home Component
 
-Contained Building Blocks::
-_<Description of contained building block (black boxes)>_
+**Verantwortlichkeiten:**
+- Dient als Haupt-Dashboard nach der Anmeldung
+- Stellt den Hintergrund und das Layout bereit
+- Integriert Search- und Quick Access Bar-Komponenten
 
-Important Interfaces::
-_<Description of important interfaces>_
+**Schnittstellen:**
+- Bindet die Search-Komponente ein
+- Bindet die Quick Access Bar-Komponente ein
 
-ifdef::arc42help[]
+#### Search Component
 
-endif::arc42help[]
+**Verantwortlichkeiten:**
+- Ermöglicht die Suche nach verfügbaren Web- und nativen Apps
+- Zeigt Suchergebnisse an
+- Öffnet ausgewählte Apps über entsprechende Plugins
+
+**Schnittstellen:**
+- Nutzt App List Service für Datenzugriff
+- Verwendet Capacitor InAppBrowser für Web-Apps
+- Verwendet App Launcher für native Apps
 
-==== <Name black box 1>
+#### Login Component
 
-ifdef::arc42help[]
+**Verantwortlichkeiten:**
+- Stellt Benutzeranmeldung und Registrierung bereit
+- Verwaltet Anmelde- und Registrierungsformulare
+- Zeigt Authentifizierungsfehler an
 
-endif::arc42help[]
+**Schnittstellen:**
+- Nutzt Auth Service für Anmeldung und Registrierung
 
-_<Purpose/Responsibility>_
+#### Settings Component
 
-_<Interface(s)>_
+**Verantwortlichkeiten:**
+- Ermöglicht Bearbeitung von Benutzereinstellungen
+- Bietet Formular für App-Vorschläge
+- Erlaubt Daten-Synchronisation mit Backend
 
-_<(Optional) Quality/Performance Characteristics>_
+**Schnittstellen:**
+- Nutzt App List Service für Daten-Synchronisation
+- Verwendet Backend-API für Vorschlagseinreichungen
 
-_<(Optional) Directory/File Location>_
+#### Quick Access Bar Component
 
-_<(Optional) Fulfilled Requirements>_
-
-_<(optional) Open Issues/Problems/Risks>_
-
-
-
-
-==== <Name black box 2>
-
-_<black box template>_
-
-==== <Name black box n>
-
-_<black box template>_
-
-
-==== <Name interface 1>
-
-...
-
-==== <Name interface m>
-
-
-
-=== Level 2
-
-ifdef::arc42help[]
-
-endif::arc42help[]
-
-==== White Box _<building block 1>_
-
-ifdef::arc42help[]
-
-endif::arc42help[]
-
-_<white box template>_
-
-==== White Box _<building block 2>_
-
-
-_<white box template>_
-
-...
-
-==== White Box _<building block m>_
-
-
-_<white box template>_
-
-
-
-=== Level 3
-
-ifdef::arc42help[]
-
-endif::arc42help[]
-
-==== White Box <_building block x.1_>
-
-ifdef::arc42help[]
-
-endif::arc42help[]
-
-_<white box template>_
-
-
-==== White Box <_building block x.2_>
-
-_<white box template>_
-
-
-
-==== White Box <_building block y.1_>
-
-_<white box template>_
+**Verantwortlichkeiten:**
+- Zeigt am häufigsten verwendete Apps an
+- Ermöglicht schnellen Zugriff ohne Suche
+- Organisiert Apps nach Priorität
+
+**Schnittstellen:**
+- Nutzt NativeApp List Service für App-Daten
+
+### Wichtige Dienste
+
+#### Auth Service
+
+**Verantwortlichkeiten:**
+- Verwaltet Benutzerauthentifizierung
+- Speichert und aktualisiert Auth-Token
+- Überprüft Authentifizierungsstatus
+
+**Schnittstellen:**
+- Backend-API-Endpunkte für Anmeldung/Registrierung
+- Capacitor Preferences für Token-Speicherung
+
+#### App List Service
+
+**Verantwortlichkeiten:**
+- Kombiniert Web-Apps und Native-Apps in einer einheitlichen Liste
+- Stellt Observable-Streams für App-Daten bereit
+- Synchronisiert App-Daten mit Backend
+
+**Schnittstellen:**
+- WebApp List Service und NativeApp List Service für Datenbezug
+- Backend-API für Datensynchronisation
+
+#### WebApp List Service und NativeApp List Service
+
+**Verantwortlichkeiten:**
+- Verwalten spezifische App-Typen (Web oder Native)
+- Speichern App-Daten lokal
+- Synchronisieren mit Backend-Server
+
+**Schnittstellen:**
+- Erben von BaseApp Service für gemeinsame Funktionalität
+- Backend-API für spezifische App-Typen
+- Capacitor Preferences für lokale Datenspeicherung
+
+## 5.3 Ebene 3: Zentrale Komponenten im Detail
+
+### Whitebox Search Component
+
+Die Search-Komponente ist eine der wichtigsten Schnittstellen für Benutzer und verwaltet die Suche und den Zugriff auf Apps.
+
+```mermaid
+classDiagram
+    class SearchComponent {
+        -searchTerm: string
+        -filteredAppList: App[]
+        -isFocused: boolean
+        +filterApps()
+        +handleItemClick(app)
+        +openApp(app)
+        +openSettings()
+    }
+
+    class AppListService {
+        +apps$: Observable~App[]~
+        +syncAll()
+    }
+
+    class InAppBrowser {
+        +openInWebView()
+        +close()
+    }
+
+    class AppLauncher {
+        +openUrl()
+    }
+
+    SearchComponent --> AppListService: nutzt
+    SearchComponent --> InAppBrowser: öffnet WebApps
+    SearchComponent --> AppLauncher: öffnet NativeApps
+```
+
+**Prozessablauf beim App-Start:**
+
+1. Der Benutzer gibt einen Suchbegriff in das Suchfeld ein
+2. Die `filterApps()`-Methode wird bei jeder Eingabe aufgerufen
+3. Die gefilterten Ergebnisse werden angezeigt
+4. Bei Klick auf ein Ergebnis wird `handleItemClick(app)` aufgerufen
+5. Je nach App-Typ:
+- Bei Web-Apps: Öffnen durch `InAppBrowser.openInWebView()`
+- Bei nativen Apps: Öffnen durch `AppLauncher.openUrl()`
+- Bei Settings: Navigation zur Settings-Komponente
+
+### Whitebox Auth Service
+
+Der Auth Service verwaltet den gesamten Authentifizierungsprozess und ist entscheidend für die Zugriffskontrolle.
+
+```mermaid
+classDiagram
+    class AuthService {
+        -currentUserSubject: BehaviorSubject
+        -isAuthenticatedSubject: BehaviorSubject
+        +currentUser$: Observable
+        +isAuthenticated$: Observable
+        +login(username, password)
+        +register(username, password)
+        +logout()
+        +getToken()
+        +verifyToken()
+    }
+
+    class CapacitorPreferences {
+        +get()
+        +set()
+        +remove()
+    }
+
+    class CapacitorHttp {
+        +post()
+        +get()
+    }
+
+    AuthService --> CapacitorPreferences: speichert Token
+    AuthService --> CapacitorHttp: API-Anfragen
+```
+
+### Whitebox WebApp und NativeApp Services
+
+Die App-Services verwalten den Zugriff auf verschiedene App-Typen und teilen gemeinsame Funktionalität über den BaseApp Service.
+
+```mermaid
+classDiagram
+    class BaseAppService {
+        #STORAGE_KEY: string
+        #API_URL: string
+        -appsSubject: BehaviorSubject
+        +apps$: Observable
+        #loadFromStorage()
+        #saveToStorage()
+        +syncWithServer()
+        +getAppList()
+    }
+
+    class WebAppListService {
+        #STORAGE_KEY: string
+        #API_URL: string
+    }
+
+    class NativeAppListService {
+        #STORAGE_KEY: string
+        #API_URL: string
+    }
+
+    BaseAppService <|-- WebAppListService: erbt von
+    BaseAppService <|-- NativeAppListService: erbt von
+```
+
+## 5.4 Technische Schnittstellen
+
+### Capacitor Plugins als Brücke zum nativen System
+
+Die Anwendung verwendet verschiedene Capacitor-Plugins, um auf native Funktionen zuzugreifen:
+
+[options="header"]
+|===
+|Plugin|Zweck
+|`@capacitor/inappbrowser`|Ermöglicht kontrolliertes Öffnen von Websites in einer WebView
+|`@capacitor/app-launcher`|Startet native Apps über ihre URI-Schemata
+|`@capacitor/preferences`|Speichert und verwaltet Benutzereinstellungen und App-Daten
+|`@capacitor/http`|Führt HTTP-Anfragen an Backend-Dienste durch
+|===
+
+### Backend-Schnittstellen
+
+Die Backend-Dienste bieten verschiedene API-Endpunkte:
+
+[options="header"]
+|===
+|Endpunkt|Beschreibung
+|`/api/auth`|Authentifizierung (Login) und Token-Verifizierung
+|`/api/auth/register`|Benutzerregistrierung
+|`/api/webapps`|Abfrage von verfügbaren Web-Apps
+|`/api/nativeapps`|Abfrage von Liste mit nativen Apps
+|`/api/wishlist`|Einreichen von App-Vorschlägen
+|===
