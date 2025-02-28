@@ -23,7 +23,7 @@ graph TB
     Launcher <-->|synchronisiert App-Liste,<br/>Authentifizierung| Backend
 ....
 
-Die fachlichen Schnittstellen umfassen:
+Die fachlichen Schnittstellen umfassen:1
 
 [options="header",cols="1,2,3"]
 |===

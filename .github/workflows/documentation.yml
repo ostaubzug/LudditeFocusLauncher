@@ -22,58 +22,58 @@ jobs:
 
       - name: Extract and convert Mermaid diagrams
         run: |
-          # Create directories
           mkdir -p Doc/images/mermaid
 
-          # Find all .adoc files in the Doc directory
           find Doc -name "*.adoc" -type f | while read file; do
-            echo "Processing $file"
+            echo "Processing $file: $(basename "$file")"
 
-            # Extract Mermaid diagrams from the file
             grep -n "\[mermaid\]" "$file" | while read -r mermaid_line; do
               line_num=$(echo "$mermaid_line" | cut -d: -f1)
 
-              # Get the ending line number
-              end_line_num=$(tail -n +$line_num "$file" | grep -n "\[/mermaid\]" | head -1 | cut -d: -f1)
-              if [ -z "$end_line_num" ]; then
-                echo "Warning: Could not find closing [/mermaid] tag for diagram at line $line_num in $file"
+              delimiter_line=$((line_num + 1))
+
+              if ! sed -n "${delimiter_line}p" "$file" | grep -q "^\.\.\.\."; then
+                echo "Warning: Expected '....' delimiter not found after [mermaid] at line $line_num in $file"
                 continue
               fi
-              end_line_num=$((line_num + end_line_num - 1))
 
-              # Extract the diagram content
-              diagram_content=$(sed -n "$((line_num+1)),$((end_line_num-1))p" "$file")
+              end_line_num=$(tail -n +$((delimiter_line + 1)) "$file" | grep -n "^\.\.\.\.") || true
+              if [ -z "$end_line_num" ]; then
+                echo "Warning: Could not find closing '....' delimiter for diagram at line $line_num in $file"
+                continue
+              fi
+              end_line_num=$((delimiter_line + 1 + $(echo "$end_line_num" | cut -d: -f1) - 1))
 
-              # Generate a unique filename based on file and line number
+              echo "Found Mermaid block from line $line_num to $end_line_num"
+
+              diagram_content=$(sed -n "$((delimiter_line + 1)),$((end_line_num - 1))p" "$file")
+
               diagram_basename="mermaid_$(basename "$file" .adoc)_$line_num"
 
-              # Write the diagram to a temporary file
               echo "$diagram_content" > "${diagram_basename}.mmd"
 
-              echo "Converting $diagram_basename.mmd to PNG"
-
-              # Use Docker to convert Mermaid to PNG
-              docker run --rm -v $(pwd):/data minlag/mermaid-cli:latest -i /data/${diagram_basename}.mmd -o /data/Doc/images/mermaid/${diagram_basename}.png -t dark
+              docker run --rm -v $(pwd):/data minlag/mermaid-cli:latest -i /data/${diagram_basename}.mmd -o /data/Doc/images/mermaid/${diagram_basename}.png -t dark -b transparent
 
               if [ -f "Doc/images/mermaid/${diagram_basename}.png" ]; then
-                echo "Successfully converted diagram to PNG"
+                echo "Successfully created PNG at Doc/images/mermaid/${diagram_basename}.png"
 
-                # Replace the Mermaid block with an image include
-                sed -i "${line_num}s/\[mermaid\]/image::images\/mermaid\/${diagram_basename}.png\[\]/" "$file"
-                sed -i "${end_line_num}d" "$file"
+                sed -i "${line_num}s|\[mermaid\]|image::images/mermaid/${diagram_basename}.png\[\]|" "$file"
 
-                # Delete the diagram content lines
-                for (( i=line_num+1; i<end_line_num; i++ )); do
-                  sed -i "$((line_num+1))d" "$file"
+                for (( i=delimiter_line; i<=end_line_num; i++ )); do
+                  sed -i "${delimiter_line}d" "$file"
                 done
 
-                # Clean up the temporary file
-                rm "${diagram_basename}.mmd"
+                echo "Updated file with image reference"
               else
-                echo "Failed to convert diagram to PNG"
+                echo "ERROR: PNG file was not created"
               fi
+
+              rm -f "${diagram_basename}.mmd"
             done
           done
+
+          echo "Generated images:"
+          find Doc/images/mermaid -type f -name "*.png" || echo "No images found"
 
       - name: asciidoctor-ghpages
         uses: manoelcampos/asciidoctor-ghpages-action@v2.3.0
