@@ -1,0 +1,16 @@
+sequenceDiagram
+  participant Benutzer
+  participant LoginComp as Login Component
+  participant AppComp as App Component
+  participant AuthService
+  participant Backend as Backend-Server
+  participant Storage as Preferences Storage
+
+  Benutzer->>LoginComp: Zugangsdaten eingeben
+  LoginComp->>AuthService: login(username, password)
+  AuthService->>Backend: POST /api/auth
+  Backend-->>AuthService: Token + Benutzerdaten
+  AuthService->>Storage: Token speichern
+  AuthService-->>LoginComp: Erfolg
+  LoginComp-->>AppComp: Authentifizierung abgeschlossen
+  AppComp->>Benutzer: Haupt-Dashboard anzeigen

@@ -1,22 +1,139 @@
-ifndef::imagesdir[:imagesdir: ../images]
+# 6. Laufzeitsicht
 
-[[section-runtime-view]]
-== Runtime View
+Die Laufzeitsicht zeigt das Zusammenspiel der Bausteine des Luddite Launchers zur Laufzeit. Die folgenden Szenarien zeigen die wichtigsten Abläufe im System.
 
+## 6.1 Authentifizierung eines Benutzers
 
-ifdef::arc42help[]
+Dieses Szenario zeigt den Anmeldevorgang eines Benutzers und die anschließende Initialisierung der App.
 
-endif::arc42help[]
+image::diagrams/authsequence.png[Sequenzdiagramm Authentifizierung]
 
-=== <Runtime Scenario 1>
+Das Authentifizierungsszenario ist besonders wichtig, da der Luddite Launcher nur für angemeldete Benutzer zugänglich ist. Nach erfolgreicher Anmeldung wird der Token lokal gespeichert und für alle nachfolgenden API-Anfragen verwendet.
 
+## 6.2 Suchen und Öffnen einer Web-App
 
-* _<insert runtime diagram or textual description of the scenario>_
-* _<insert description of the notable aspects of the interactions between the
-building block instances depicted in this diagram.>_
+Dieses Szenario beschreibt den Prozess des Suchens und Öffnens einer Web-App, was eine der Kernfunktionen des Launchers darstellt.
 
-=== <Runtime Scenario 2>
+```mermaid
+sequenceDiagram
+    participant Benutzer
+    participant SearchComp as Search Component
+    participant AppListSvc as App List Service
+    participant InAppBrowser
+    participant Backend as Backend-Server
 
-=== ...
+    Benutzer->>SearchComp: Suchbegriff eingeben
+    SearchComp->>AppListSvc: Filtere Apps
+    AppListSvc-->>SearchComp: Gefilterte App-Liste
+    SearchComp-->>Benutzer: Suchergebnisse anzeigen
+    Benutzer->>SearchComp: Web-App auswählen
+    SearchComp->>InAppBrowser: openInWebView(url, options)
+    InAppBrowser-->>Benutzer: Zeige Web-App in kontrollierter Umgebung
+```
 
-=== <Runtime Scenario n>
+Dieses Szenario zeigt, wie der Benutzer über die Suche auf Web-Apps zugreifen kann. Die Search Component filtert die Apps basierend auf dem Suchbegriff und präsentiert die Ergebnisse. Nach Auswahl einer Web-App wird diese in einer kontrollierten Browser-Umgebung geöffnet, wobei der Benutzer die URL nicht ändern kann.
+
+## 6.3 Starten einer nativen App
+
+Dieses Szenario zeigt, wie der Benutzer eine native Android-App über den Launcher öffnen kann.
+
+```mermaid
+sequenceDiagram
+    participant Benutzer
+    participant Komponente as Search/Quick Access Component
+    participant AppLauncher
+    participant Android as Android-System
+
+    Benutzer->>Komponente: Native App auswählen
+    Komponente->>AppLauncher: openUrl(app.url)
+    AppLauncher->>Android: Intent starten
+    Android-->>Benutzer: Native App öffnen
+```
+
+Der Launcher ermöglicht den direkten Zugriff auf installierte native Apps wie WhatsApp oder Proton Mail, ohne dass der Benutzer auf den Standard-App-Drawer des Android-Systems zugreifen muss. Dies erfolgt über die Capacitor AppLauncher-API, die einen Intent an das Android-System sendet.
+
+## 6.4 Synchronisation der App-Daten mit dem Backend
+
+Dieses Szenario beschreibt, wie der Launcher die Liste der verfügbaren Apps beim Start oder auf Benutzeranfrage mit dem Backend synchronisiert.
+
+```mermaid
+sequenceDiagram
+    participant Benutzer
+    participant HomeComp as Home Component
+    participant AppListSvc as App List Service
+    participant WebAppSvc as WebApp List Service
+    participant NativeAppSvc as NativeApp List Service
+    participant AuthService
+    participant Backend as Backend-Server
+    participant Storage as Preferences Storage
+
+    Benutzer->>HomeComp: App öffnen/Sync anfordern
+    HomeComp->>AppListSvc: syncAll()
+    AppListSvc->>WebAppSvc: syncWithServer()
+    AppListSvc->>NativeAppSvc: syncWithServer()
+
+    WebAppSvc->>AuthService: getToken()
+    AuthService-->>WebAppSvc: Token
+    WebAppSvc->>Backend: GET /api/webapps
+    Backend-->>WebAppSvc: Web-Apps Liste
+    WebAppSvc->>Storage: Daten speichern
+    WebAppSvc-->>AppListSvc: Synchronisation abgeschlossen
+
+    NativeAppSvc->>AuthService: getToken()
+    AuthService-->>NativeAppSvc: Token
+    NativeAppSvc->>Backend: GET /api/nativeapps
+    Backend-->>NativeAppSvc: Native-Apps Liste
+    NativeAppSvc->>Storage: Daten speichern
+    NativeAppSvc-->>AppListSvc: Synchronisation abgeschlossen
+
+    AppListSvc-->>HomeComp: Alle Daten aktualisiert
+    HomeComp-->>Benutzer: Aktualisierte App-Liste anzeigen
+```
+
+Die Synchronisation stellt sicher, dass der Benutzer stets auf die aktuelle Liste der verfügbaren Apps zugreifen kann. Dies ist besonders wichtig, da neue Web-Apps vom Administrator im Backend hinzugefügt werden können und dem Benutzer ohne App-Update zur Verfügung stehen sollen.
+
+## 6.5 Einreichen eines App-Vorschlags
+
+Dieses Szenario zeigt, wie ein Benutzer einen Vorschlag für eine neue Web-App einreichen kann.
+
+```mermaid
+sequenceDiagram
+    participant Benutzer
+    participant SettingsComp as Settings Component
+    participant AuthService
+    participant Backend as Backend-Server
+
+    Benutzer->>SettingsComp: Formular ausfüllen
+    Benutzer->>SettingsComp: Vorschlag absenden
+    SettingsComp->>AuthService: getToken()
+    AuthService-->>SettingsComp: Token
+    SettingsComp->>Backend: POST /api/wishlist
+    Backend-->>SettingsComp: Bestätigung
+    SettingsComp-->>Benutzer: Erfolgsmeldung anzeigen
+```
+
+Dieses Feature ermöglicht es Benutzern, aktiv an der Erweiterung des App-Angebots teilzunehmen, indem sie Vorschläge für neue Web-Apps einreichen können. Die Vorschläge werden in einer separaten Collection in der MongoDB gespeichert und können vom Administrator geprüft und gegebenenfalls implementiert werden.
+
+## 6.6 Fehlerszenario: Offline-Nutzung
+
+Dieses Szenario beschreibt, wie das System reagiert, wenn keine Verbindung zum Backend besteht.
+
+```mermaid
+sequenceDiagram
+    participant Benutzer
+    participant HomeComp as Home Component
+    participant AppListSvc as App List Service
+    participant Storage as Preferences Storage
+    participant Backend as Backend-Server
+
+    Benutzer->>HomeComp: App öffnen
+    HomeComp->>AppListSvc: syncAll()
+    AppListSvc->>Backend: HTTP-Anfrage
+    Backend--xAppListSvc: Verbindungsfehler
+    AppListSvc->>Storage: Lade lokale Daten
+    Storage-->>AppListSvc: Zuletzt gespeicherte App-Listen
+    AppListSvc-->>HomeComp: Verwende lokale Daten
+    HomeComp-->>Benutzer: Zeige offline-Hinweis + lokale App-Liste
+```
+
+Der Luddite Launcher ist so konzipiert, dass er auch offline funktioniert, indem er auf lokal gespeicherte Daten zurückgreift. Bei einem Verbindungsfehler werden die zuletzt synchronisierten App-Listen verwendet, sodass der Benutzer weiterhin Zugriff auf installierte Apps hat. Dies gewährleistet eine unterbrechungsfreie Nutzung, auch wenn keine Internetverbindung besteht.
