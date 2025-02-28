@@ -20,47 +20,60 @@ jobs:
           git config --global user.email "actions@github.com"
           echo "GH_TOKEN=${{ github.token }}" >> $GITHUB_ENV
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install Mermaid CLI
-        run: npm install -g @mermaid-js/mermaid-cli
-
       - name: Process Mermaid Diagrams
         run: |
+          # Create images directory
           mkdir -p Doc/images
 
-          find Doc -name "*.adoc" -print0 | while IFS= read -r -d '' file; do
+          # Process each AsciiDoc file
+          find Doc -name "*.adoc" -type f | while read -r file; do
             echo "Processing $file"
 
+            # Find all Mermaid blocks
             grep -n "^\[mermaid\]" "$file" | while read -r line; do
               line_num=$(echo "$line" | cut -d':' -f1)
 
+              # Find the start and end of the Mermaid content
               start_line=$((line_num + 2))
+              end_search=$(tail -n +$start_line "$file" | grep -n "^\.\.\.\.$" | head -1)
 
-              end_line=$(tail -n +$start_line "$file" | grep -n "^\.\.\.\.$" | head -1 | cut -d':' -f1)
-              end_line=$((start_line + end_line - 1))
+              if [ -n "$end_search" ]; then
+                end_offset=$(echo "$end_search" | cut -d':' -f1)
+                end_line=$((start_line + end_offset - 1))
 
-              diagram_name="diagram_$(basename "$file" .adoc)_${line_num}"
-              diagram_file="Doc/images/${diagram_name}.mmd"
+                # Generate a unique name for the diagram
+                diagram_name="diagram_$(basename "$file" .adoc)_${line_num}"
 
-              sed -n "${start_line},${end_line}p" "$file" > "$diagram_file"
+                # Extract Mermaid content
+                mermaid_content=$(sed -n "${start_line},${end_line}p" "$file")
 
-              mmdc -i "$diagram_file" -o "Doc/images/${diagram_name}.svg" -b transparent
+                # Save to a file
+                echo "$mermaid_content" > "Doc/images/${diagram_name}.mmd"
 
-              lines_to_remove=$((end_line - line_num + 2))
+                # Use Kroki API to convert Mermaid to SVG (URL-safe Base64)
+                encoded_content=$(echo -n "$mermaid_content" | base64 | tr '+/' '-_' | tr -d '=')
+                curl -s "https://kroki.io/mermaid/svg/${encoded_content}" -o "Doc/images/${diagram_name}.svg"
 
-              temp_file=$(mktemp)
+                # Check if the SVG was created successfully
+                if [ -s "Doc/images/${diagram_name}.svg" ]; then
+                  echo "Successfully created SVG for diagram in $file at line $line_num"
 
-              {
-                head -n $((line_num - 1)) "$file"
-                echo "image::${diagram_name}.svg[${diagram_name}]"
-                tail -n +$((end_line + 2)) "$file"
-              } > "$temp_file"
+                  # Create a temporary file
+                  temp_file=$(mktemp)
 
-              mv "$temp_file" "$file"
+                  # Replace the Mermaid block with an image reference
+                  {
+                    head -n $((line_num - 1)) "$file"
+                    echo "image::${diagram_name}.svg[${diagram_name}]"
+                    tail -n +$((end_line + 2)) "$file"
+                  } > "$temp_file"
+
+                  # Move the temporary file back to the original
+                  mv "$temp_file" "$file"
+                else
+                  echo "Failed to create SVG for diagram in $file at line $line_num"
+                fi
+              fi
             done
           done
 
