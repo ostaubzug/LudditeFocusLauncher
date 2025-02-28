@@ -22,6 +22,7 @@ jobs:
 
       - name: Extract and convert Mermaid diagrams
         run: |
+          # Create image directory in the correct location
           mkdir -p Doc/images/mermaid
 
           find Doc -name "*.adoc" -type f | while read file; do
@@ -62,22 +63,33 @@ jobs:
                 if [ -f "Doc/images/mermaid/${diagram_basename}.png" ]; then
                   echo "Successfully created PNG"
 
-                  # Get the title from the line before [mermaid] if it exists
+                  # Check for title in the previous line
                   title=""
                   if [ "$mermaid_start" -gt 1 ]; then
                     prev_line=$(sed -n "$((mermaid_start-1))p" "$file")
                     if [[ "$prev_line" == "."* ]]; then
-                      title=" \"$prev_line\""
+                      title="$prev_line"
                     fi
                   fi
 
                   # Create temporary file for editing
                   temp_file="${file}.temp"
-                  awk -v start="$mermaid_start" -v end="$line_num" -v img="image::images/mermaid/${diagram_basename}.png[]$title" '
-                    NR == start {print img; next}
-                    NR > start && NR <= end {next}
-                    {print}
-                  ' "$file" > "$temp_file"
+
+                  if [ -n "$title" ]; then
+                    # Keep the title line and replace the mermaid block with just the image
+                    awk -v start="$mermaid_start" -v end="$line_num" -v img="image::images/mermaid/${diagram_basename}.png[]" '
+                      NR == start {print img; next}
+                      NR > start && NR <= end {next}
+                      {print}
+                    ' "$file" > "$temp_file"
+                  else
+                    # No title, so replace with image
+                    awk -v start="$mermaid_start" -v end="$line_num" -v img="image::images/mermaid/${diagram_basename}.png[]" '
+                      NR == start {print img; next}
+                      NR > start && NR <= end {next}
+                      {print}
+                    ' "$file" > "$temp_file"
+                  fi
 
                   mv "$temp_file" "$file"
                   echo "Updated file with image reference"
@@ -102,20 +114,21 @@ jobs:
             done < "$file"
           done
 
-          # List generated images and confirm they exist
           echo "Generated images:"
-          find Doc/images/mermaid -type f -name "*.png" | while read img; do
-            file_size=$(stat -c%s "$img")
-            echo "$img ($(($file_size / 1024)) KB)"
-          done
+          find Doc/images/mermaid -type f -name "*.png"
 
-      - name: Debug AsciiDoc files
+      - name: Copy images to output directory
         run: |
-          echo "Checking modified AsciiDoc files:"
-          grep -r "image::images/mermaid" Doc/
+          # Make sure images directory exists in the output location
+          mkdir -p Doc/build/site/images/mermaid
+          cp -r Doc/images/mermaid/* Doc/build/site/images/mermaid/ || true
+
+          echo "Copied image files to output directory"
 
       - name: asciidoctor-ghpages
         uses: manoelcampos/asciidoctor-ghpages-action@v2.3.0
         with:
           pdf_build: true
           source_dir: Doc/
+          slides_build: false
+          asciidoctor_params: --attribute=imagesdir=images
