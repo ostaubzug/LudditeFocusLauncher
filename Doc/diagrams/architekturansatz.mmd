@@ -1,0 +1,33 @@
+graph TD
+  subgraph "Client (Android Device)"
+    A[Luddite Launcher App]
+    B[Capacitor Browser Plugin]
+    C[Native App Integration]
+  end
+
+  subgraph "Backend (Node.js)"
+    D[Authentication API]
+    E[WebApp List API]
+    F[Wishlist API]
+    G[Native App List API]
+  end
+
+  subgraph "Database (MongoDB)"
+    H[(Web Apps Collection)]
+    I[(Users Collection)]
+    J[(Wishlist Collection)]
+    K[(Native Apps Collection)]
+  end
+
+  A -->|Authentication| D
+  A -->|Fetch App List| E
+  A -->|Submit Wishlist| F
+  A -->|Fetch Native Apps| G
+
+  D -->|Query/Update| I
+  E -->|Query| H
+  F -->|Store| J
+  G -->|Query| K
+
+  A -->|Opens| B
+  A -->|Launches| C

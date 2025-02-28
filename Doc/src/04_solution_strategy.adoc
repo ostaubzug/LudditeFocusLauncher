@@ -1,9 +1,55 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-solution-strategy]]
-== Solution Strategy
+== Lösungsstrategie
 
+Dieses Kapitel bietet einen kurzen Überblick über die grundlegenden Entscheidungen und Lösungsansätze, die für die Architektur des Luddite Launchers getroffen wurden.
 
-ifdef::arc42help[]
+=== Technologieentscheidungen
 
-endif::arc42help[]
+[cols="1,2,4", options="header"]
+|===
+|Technologie|Entscheidung|Begründung
+|Frontend Framework|Angular|Angular bietet ein robustes Framework für die Entwicklung komplexer Single-Page-Anwendungen mit TypeScript. Es unterstütz durch die vorgegebene Struktur Einsteiger beim Aufbau der Applikation. Ausserdem wurde Capacitor ursprünglich für Angular Applikationen entwickelt und funktioniert reibungslos.
+|Hybride App-Entwicklung|Capacitor|Capacitor ermöglicht die Entwicklung einer Web-App mit nativen Funktionalitäten. Insbesondere das Capacitor Browser Plugin ist entscheidend für das Kernkonzept des Launchers, da es kontrollierte Webansichten ohne Zugriff auf URL-Änderungen ermöglicht.
+|Backend|Node.js|Node.js bietet eine leichtgewichtige, skalierbare Plattform für die Implementierung des API-Servers. Die Event-driven, nicht-blockierende Architektur eignet sich gut für eine Anwendung mit mehreren gleichzeitigen Benutzern.
+|Datenbank|MongoDB|Als NoSQL-Datenbank bietet MongoDB Flexibilität bei der Datenspeicherung und eignet sich gut für die Speicherung von App-Definitionen, Benutzereinstellungen und Wunschlisten-Einträgen. Die dokumentenorientierte Struktur passt gut zum JSON-basierten Datenaustausch der App.
+|Hosting|Openstack Public Cloud|Die Infrastruktur wird auf einem existierenden Infomaniak Server in der Openstack Public Cloud gehostet. Das vereinfacht den Zugriff auf das Backend vom nativen Gerät aus.
+|Containerisierung|Docker|Docker wird für die Containerisierung des Backends verwendet, was die Konsistenz zwischen Entwicklungs-, Test- und Produktionsumgebungen gewährleistet.
+|===
+
+=== Architekturansatz
+
+Der Architekturansatz für den Luddite Launcher folgt einem Client-Server-Modell mit einer klaren Trennung zwischen Frontend, Backend und Datenbank:
+
+image::diagrams/architekturansatz.png[Architekturansatz]
+
+=== Qualitätsziele und ihre Umsetzung
+
+[cols="1,2,3", options="header"]
+|===
+|Qualitätsziel|Lösungsansatz|Implementierungsprinzipien
+|Aktualität der App-Liste|Pull-basierte Synchronisierung|Die App synchronisiert die Liste der verfügbaren Apps bei jedem Start und bietet manuelles Aktualisieren im Einstellungsbereich. Lokale Kopien werden für Offline-Zugriff gespeichert.
+|Benutzerfreundliche Suche|Suchfunktion|Implementierung einer dynamischen Suchfunktion, die Ergebnisse in Echtzeit filtert, während der Benutzer tippt.
+|Kontrollierte Web-Nutzung|Capacitor Browser Plugin|Verwendung des Capacitor InAppBrowser Plugins mit eingeschränkten Berechtigungen, die Benutzer daran hindern, URLs zu ändern oder neue Tabs zu öffnen.
+|Erweiterbarkeit durch Feedback|Wunschlisten-System|Implementierung eines Formulars, mit dem Benutzer neue Web-Apps vorschlagen können. Diese werden in einer separaten MongoDB-Collection gespeichert und können später vom Administrator überprüft werden.
+|Zugangskontrolle|JWT-basierte Authentifizierung|Verwendung von JSON Web Tokens für die Authentifizierung.
+|Integration nativer Anwendungen|Capacitor App Launcher|Verwendung des Capacitor App Launcher Plugins, um native Apps zu starten.
+|Zeitmanagement|Event-basiertes Tracking|Konnte noch nicht umgesetzt werden.
+|===
+
+=== Organisatorische Entscheidungen
+
+* **Entwicklungsansatz**: Agile Entwicklung
+* **Versionsverwaltung**: Git
+* **CI/CD**: GitHub Actions für automatisierte Builds und Deployments
+* **Dokumentation**: arc42 für die Architekturdokumentation mit CI Pipeline
+
+=== Technische Schulden und Risiken
+
+Für die aktuelle Schulprojektphase wurden bewusst folgende Einschränkungen akzeptiert:
+
+* Die Implementierung der Zeitbegrenzungsfunktion wurde aufgrund von Zeitbeschränkungen zurückgestellt
+* Die Benutzeroberfläche konzentriert sich zunächst auf Funktionalität; erweiterte Anpassungsoptionen sind für spätere Versionen vorgesehen
+* Die Passwörter werden im Klartext auf der MongoDB gespeichert. Aus Zeitgründen konnte das Authentifizierungsverfahren nur vereinfacht umgesetzt werden.
+* Die Kommunikation mit dem Server läuft via http, nicht https. Zurzeit wird der Server via IP Adresse und nicht einer Domain angesprochen was das installieren von Zertifikaten erschwert.
