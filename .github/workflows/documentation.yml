@@ -25,3 +25,4 @@ jobs:
         with:
           pdf_build: true
           source_dir: Doc/
+
