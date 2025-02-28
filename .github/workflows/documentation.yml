@@ -25,8 +25,11 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Mermaid CLI
-        run: npm install -g @mermaid-js/mermaid-cli
+      - name: Install Mermaid CLI and dependencies
+        run: |
+          npm install -g @mermaid-js/mermaid-cli
+          sudo apt-get update
+          sudo apt-get install -y libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxi6 libxtst6 libnss3 libcups2 libxss1 libxrandr2 libasound2 libatk1.0-0 libatk-bridge2.0-0 libpangocairo-1.0-0 libgtk-3-0 libgbm1
 
       - name: Find and convert Mermaid diagrams
         run: |
@@ -38,12 +41,15 @@ jobs:
             echo "Processing $file"
 
             # Extract Mermaid diagrams from the file and convert them to PNG
-            # This extracts content between [mermaid] and [/mermaid] tags
             grep -n "\[mermaid\]" "$file" | while read -r mermaid_line; do
               line_num=$(echo "$mermaid_line" | cut -d: -f1)
 
               # Get the ending line number
               end_line_num=$(tail -n +$line_num "$file" | grep -n "\[/mermaid\]" | head -1 | cut -d: -f1)
+              if [ -z "$end_line_num" ]; then
+                echo "Warning: Could not find closing [/mermaid] tag for diagram at line $line_num in $file"
+                continue
+              fi
               end_line_num=$((line_num + end_line_num - 1))
 
               # Extract the diagram content
@@ -55,15 +61,23 @@ jobs:
               # Write the diagram to a temporary file
               echo "$diagram_content" > temp_diagram.mmd
 
-              # Convert to PNG using mmdc
-              mmdc -i temp_diagram.mmd -o "Doc/images/mermaid/$diagram_filename" -t dark
+              echo "Converting diagram at line $line_num to $diagram_filename"
 
-              # Replace the Mermaid block with an image include in the file
-              sed -i "${line_num}s/\[mermaid\]/image::images\/mermaid\/$diagram_filename\[\]/" "$file"
-              sed -i "${end_line_num}d" "$file"
-              for (( i=line_num+1; i<end_line_num; i++ )); do
-                sed -i "$((line_num+1))d" "$file"
-              done
+              # Convert to PNG using mmdc with the --no-sandbox option
+              mmdc -i temp_diagram.mmd -o "Doc/images/mermaid/$diagram_filename" -t dark --puppeteerConfig '{"args": ["--no-sandbox", "--disable-setuid-sandbox"]}'
+
+              if [ $? -eq 0 ]; then
+                echo "Successfully converted diagram to PNG"
+
+                # Replace the Mermaid block with an image include in the file
+                sed -i "${line_num}s/\[mermaid\]/image::images\/mermaid\/$diagram_filename\[\]/" "$file"
+                sed -i "${end_line_num}d" "$file"
+                for (( i=line_num+1; i<end_line_num; i++ )); do
+                  sed -i "$((line_num+1))d" "$file"
+                done
+              else
+                echo "Failed to convert diagram to PNG"
+              fi
             done
           done
 
