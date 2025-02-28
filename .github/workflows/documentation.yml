@@ -20,65 +20,33 @@ jobs:
           git config --global user.email "actions@github.com"
           echo "GH_TOKEN=${{ github.token }}" >> $GITHUB_ENV
 
-      - name: Process Mermaid Diagrams
+      - name: Install Java for PlantUML
+        uses: actions/setup-java@v4.7.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1.221.0
+        with:
+          ruby-version: '3.1'
+
+      - name: Install Asciidoctor and extensions
         run: |
-          # Create images directory
-          mkdir -p Doc/images
+          gem install asciidoctor asciidoctor-pdf asciidoctor-diagram
 
-          # Process each AsciiDoc file
-          find Doc -name "*.adoc" -type f | while read -r file; do
-            echo "Processing $file"
-
-            # Find all Mermaid blocks
-            grep -n "^\[mermaid\]" "$file" | while read -r line; do
-              line_num=$(echo "$line" | cut -d':' -f1)
-
-              # Find the start and end of the Mermaid content
-              start_line=$((line_num + 2))
-              end_search=$(tail -n +$start_line "$file" | grep -n "^\.\.\.\.$" | head -1)
-
-              if [ -n "$end_search" ]; then
-                end_offset=$(echo "$end_search" | cut -d':' -f1)
-                end_line=$((start_line + end_offset - 1))
-
-                # Generate a unique name for the diagram
-                diagram_name="diagram_$(basename "$file" .adoc)_${line_num}"
-
-                # Extract Mermaid content
-                mermaid_content=$(sed -n "${start_line},${end_line}p" "$file")
-
-                # Save to a file
-                echo "$mermaid_content" > "Doc/images/${diagram_name}.mmd"
-
-                # Use Kroki API to convert Mermaid to SVG (URL-safe Base64)
-                encoded_content=$(echo -n "$mermaid_content" | base64 | tr '+/' '-_' | tr -d '=')
-                curl -s "https://kroki.io/mermaid/svg/${encoded_content}" -o "Doc/images/${diagram_name}.svg"
-
-                # Check if the SVG was created successfully
-                if [ -s "Doc/images/${diagram_name}.svg" ]; then
-                  echo "Successfully created SVG for diagram in $file at line $line_num"
-
-                  # Create a temporary file
-                  temp_file=$(mktemp)
-
-                  # Replace the Mermaid block with an image reference
-                  {
-                    head -n $((line_num - 1)) "$file"
-                    echo "image::${diagram_name}.svg[${diagram_name}]"
-                    tail -n +$((end_line + 2)) "$file"
-                  } > "$temp_file"
-
-                  # Move the temporary file back to the original
-                  mv "$temp_file" "$file"
-                else
-                  echo "Failed to create SVG for diagram in $file at line $line_num"
-                fi
-              fi
-            done
+      - name: Convert your documents
+        run: |
+          for file in $(find Doc -name "*.adoc"); do
+            asciidoctor -r asciidoctor-diagram -a imagesdir=./images -a imagesoutdir=./images "$file" -o "${file%.adoc}.html"
+            asciidoctor-pdf -r asciidoctor-diagram -a imagesdir=./images -a imagesoutdir=./images "$file" -o "${file%.adoc}.pdf"
           done
 
-      - name: asciidoctor-ghpages
-        uses: manoelcampos/asciidoctor-ghpages-action@v2.3.0
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4.0.0
         with:
-          pdf_build: true
-          source_dir: Doc/
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./Doc
