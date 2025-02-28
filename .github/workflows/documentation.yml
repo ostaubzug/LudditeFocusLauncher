@@ -37,12 +37,14 @@ jobs:
                 continue
               fi
 
-              end_line_num=$(tail -n +$((delimiter_line + 1)) "$file" | grep -n "^\.\.\.\.") || true
-              if [ -z "$end_line_num" ]; then
+              end_delimiter=$(tail -n +$((delimiter_line + 1)) "$file" | grep -n "^\.\.\.\.")
+              if [ -z "$end_delimiter" ]; then
                 echo "Warning: Could not find closing '....' delimiter for diagram at line $line_num in $file"
                 continue
               fi
-              end_line_num=$((delimiter_line + 1 + $(echo "$end_line_num" | cut -d: -f1) - 1))
+
+              end_delimiter_relative_line=$(echo "$end_delimiter" | cut -d: -f1)
+              end_line_num=$((delimiter_line + end_delimiter_relative_line))
 
               echo "Found Mermaid block from line $line_num to $end_line_num"
 
