@@ -20,9 +20,52 @@ jobs:
           git config --global user.email "actions@github.com"
           echo "GH_TOKEN=${{ github.token }}" >> $GITHUB_ENV
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Mermaid CLI
+        run: npm install -g @mermaid-js/mermaid-cli
+
+      - name: Process Mermaid Diagrams
+        run: |
+          mkdir -p Doc/images
+
+          find Doc -name "*.adoc" -print0 | while IFS= read -r -d '' file; do
+            echo "Processing $file"
+
+            grep -n "^\[mermaid\]" "$file" | while read -r line; do
+              line_num=$(echo "$line" | cut -d':' -f1)
+
+              start_line=$((line_num + 2))
+
+              end_line=$(tail -n +$start_line "$file" | grep -n "^\.\.\.\.$" | head -1 | cut -d':' -f1)
+              end_line=$((start_line + end_line - 1))
+
+              diagram_name="diagram_$(basename "$file" .adoc)_${line_num}"
+              diagram_file="Doc/images/${diagram_name}.mmd"
+
+              sed -n "${start_line},${end_line}p" "$file" > "$diagram_file"
+
+              mmdc -i "$diagram_file" -o "Doc/images/${diagram_name}.svg" -b transparent
+
+              lines_to_remove=$((end_line - line_num + 2))
+
+              temp_file=$(mktemp)
+
+              {
+                head -n $((line_num - 1)) "$file"
+                echo "image::${diagram_name}.svg[${diagram_name}]"
+                tail -n +$((end_line + 2)) "$file"
+              } > "$temp_file"
+
+              mv "$temp_file" "$file"
+            done
+          done
+
       - name: asciidoctor-ghpages
         uses: manoelcampos/asciidoctor-ghpages-action@v2.3.0
         with:
           pdf_build: true
           source_dir: Doc/
-
