@@ -1,35 +1,49 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-introduction-and-goals]]
-== Introduction and Goals
+== Einführung und Ziele
+
+In diesem Kapitel werden die grundlegenden Ziele des Luddite Launcher Projekts sowie die wichtigsten Anforderungen und Stakeholder beschrieben.
+
+=== Aufgabenstellung
+
+Das Luddite Launcher Projekt ist Teil eines Projektes von mir mit dem Ziel ein Phone zu erstellen, welches den Social Media Zugang einschränkt. Die Anwendung dient als primäre Benutzeroberfläche (Launcher) für ein modifiziertes Android-Betriebssystem, das ohne herkömmlichen Webbrowser ausgeliefert wird.
+
+Der Luddite Launcher ermöglicht Benutzern den Zugang zu ausgewählten Web-Anwendungen durch ein Capacitor Browser Plugin, wodurch nur bestimmte, zuvor definierte Websites geöffnet werden können. Dies verhindert unkontrolliertes Surfen und die damit verbundenen Ablenkungen.
+
+Zentrale Funktionen des Launchers sind:
+
+* Anzeige und Suche von verfügbaren Web-Apps
+* Nutzerauthentifizierung (Login)
+* Öffnen von Web-Apps in einer kontrollierten Browser-Umgebung
+* Möglichkeit, neue Web-App-Vorschläge einzureichen
+* Integration mit nativen Apps wie WhatsApp
+
+Gerne passe ich die Qualitätskriterien in Kapitel 1 entsprechend den sieben Anforderungen an. Hier ist die überarbeitete Version für den Abschnitt "Qualitätsziele":
 
 
+=== Qualitätsziele
 
-ifdef::arc42help[]
+Ausgehend von den grundlegenden Anforderungen an das System wurden folgende Qualitätsziele definiert:
 
-endif::arc42help[]
-
-=== Requirements Overview
-
-ifdef::arc42help[]
-
-endif::arc42help[]
-
-=== Quality Goals
-
-ifdef::arc42help[]
-
-endif::arc42help[]
-
-=== Stakeholders
-
-ifdef::arc42help[]
-
-endif::arc42help[]
-
-[options="header",cols="1,2,2"]
+[options="header",cols="1,2,4"]
 |===
-|Role/Name|Contact|Expectations
-| _<Role-1>_ | _<Contact-1>_ | _<Expectation-1>_
-| _<Role-2>_ | _<Contact-2>_ | _<Expectation-2>_
+|Priorität|Qualitätsziel|Motivation
+|1|Aktualität der App-Liste|Die Liste der verfügbaren Web-Apps muss bei jedem Öffnen der App vom Backend geladen werden, um stets aktuell zu bleiben
+|2|Benutzerfreundliche Suche|Benutzer müssen schnell und einfach nach verfügbaren Web-Apps suchen und diese finden können
+|3|Kontrollierte Web-Nutzung|Das Öffnen von Web-Apps muss in einer kontrollierten Umgebung erfolgen, bei der Benutzer die URL nicht ändern können
+|4|Erweiterbarkeit durch Feedback|Benutzer sollen Vorschläge für neue Web-Apps einbringen können, um die Nützlichkeit des Systems kontinuierlich zu verbessern
+|5|Zugangskontrolle|Nur angemeldete Benutzer sollen die App nutzen können, um personalisierte Einstellungen zu ermöglichen
+|6|Integration nativer Anwendungen|Native Apps wie WhatsApp sollen nahtlos integriert werden, um ein vollständiges Nutzungserlebnis zu bieten
+|7|Zeitmanagement|Für Social Media-Seiten soll eine Zeitbeschränkung möglich sein, um die Bildschirmzeit zu reduzieren und digitale Abhängigkeiten zu bekämpfen
+|===
+
+=== Stakeholder
+
+[options="header",cols="1,3"]
+|===
+|Rolle|Erwartungen
+|Endbenutzer|Möchten ein Smartphone, das ihnen hilft, digitale Abhängigkeiten zu reduzieren, ohne auf wichtige Funktionen verzichten zu müssen
+|Entwickler|Benötigen eine gut strukturierte, erweiterbare Architektur, die einfach zu warten und zu aktualisieren ist
+|Dozent|Erwarten eine klar dokumentierte Lösung, die architektonische Entscheidungen und deren Begründungen nachvollziehbar darstellt
 |===
