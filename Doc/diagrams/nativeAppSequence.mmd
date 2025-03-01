@@ -1,0 +1,10 @@
+sequenceDiagram
+  participant Benutzer
+  participant Komponente as Search/Quick Access Component
+  participant AppLauncher
+  participant Android as Android-System
+
+  Benutzer->>Komponente: Native App auswählen
+  Komponente->>AppLauncher: openUrl(app.url)
+  AppLauncher->>Android: Intent starten
+  Android-->>Benutzer: Native App öffnen

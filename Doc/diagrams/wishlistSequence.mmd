@@ -1,0 +1,13 @@
+sequenceDiagram
+  participant Benutzer
+  participant SettingsComp as Settings Component
+  participant AuthService
+  participant Backend as Backend-Server
+
+  Benutzer->>SettingsComp: Formular ausfüllen
+  Benutzer->>SettingsComp: Vorschlag absenden
+  SettingsComp->>AuthService: getToken()
+  AuthService-->>SettingsComp: Token
+  SettingsComp->>Backend: POST /api/wishlist
+  Backend-->>SettingsComp: Bestätigung
+  SettingsComp-->>Benutzer: Erfolgsmeldung anzeigen

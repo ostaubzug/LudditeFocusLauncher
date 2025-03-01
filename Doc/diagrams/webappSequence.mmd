@@ -1,0 +1,14 @@
+sequenceDiagram
+  participant Benutzer
+  participant SearchComp as Search Component
+  participant AppListSvc as App List Service
+  participant InAppBrowser
+  participant Backend as Backend-Server
+
+  Benutzer->>SearchComp: Suchbegriff eingeben
+  SearchComp->>AppListSvc: Filtere Apps
+  AppListSvc-->>SearchComp: Gefilterte App-Liste
+  SearchComp-->>Benutzer: Suchergebnisse anzeigen
+  Benutzer->>SearchComp: Web-App auswählen
+  SearchComp->>InAppBrowser: openInWebView(url, options)
+  InAppBrowser-->>Benutzer: Zeige Web-App in kontrollierter Umgebung
