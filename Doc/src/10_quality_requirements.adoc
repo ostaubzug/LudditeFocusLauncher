@@ -1,21 +1,68 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-quality-scenarios]]
-== Quality Requirements
+== 10. Qualitätsanforderungen
 
+=== 10.1 Qualitätsbaum
 
-ifdef::arc42help[]
+Der Qualitätsbaum zeigt die wichtigsten Qualitätsanforderungen basierend auf den ursprünglichen User Stories.
 
-endif::arc42help[]
+[mermaid]
+....
+graph TD
+    Q[Qualität] --> A[Aktualität]
+    Q --> B[Benutzerfreundlichkeit]
+    Q --> S[Sicherheit]
+    Q --> P[Personalisierung]
 
-=== Quality Tree
+    A --> A1[Aktuelle App-Liste]
+    B --> B1[Einfache App-Suche]
+    B --> B2[Web-App Nutzung]
+    B --> B3[Feedback-Möglichkeit]
+    S --> S1[Zugangskontrolle]
+    S --> S2[Eingeschränkter Web-Zugriff]
+    P --> P1[Native App-Integration]
+    P --> P2[Zeitlimits für Social Media]
+    P --> P3[Schnellzugriff auf häufige Apps]
+....
 
-ifdef::arc42help[]
+=== 10.2 Qualitätsszenarien
 
-endif::arc42help[]
+Die folgenden Qualitätsszenarien basieren direkt auf den User Stories aus dem Anforderungsdokument.
 
-=== Quality Scenarios
+[options="header",cols="1,3,1,1"]
+|===
+|ID|Szenario|User Story|Umsetzungsstatus
+|QS-1|Bei jedem Öffnen der App wird die Liste der verfügbaren Web-Apps aus dem Backend geladen und aktualisiert. Eine lokale Kopie wird gespeichert, um die App auch bei temporären Verbindungsproblemen nutzen zu können.|User Story 1: Liste mit verfügbaren Apps laden|Vollständig umgesetzt
+|QS-2|Beim Tippen in das Suchfeld erscheint sofort eine Liste mit den gefilterten Suchresultaten. Diese Liste wird dynamisch angepasst, wenn sich der Suchbegriff ändert. Beim Klicken neben die Suche wird diese geschlossen.|User Story 2: Suchen nach Web Apps|Vollständig umgesetzt
+|QS-3|Bei Klick auf ein Suchergebnis öffnet sich die Website im InAppBrowser und ist vollständig nutzbar. Der Nutzer kann die URL nicht ändern oder bearbeiten, sodass nur autorisierte Webseiten zugänglich sind.|User Story 3: Öffnen von Web Apps|Vollständig umgesetzt
+|QS-4|Nutzer können über ein spezielles Formular Vorschläge für neue Web-Apps einreichen. Diese Wünsche werden in einer separaten Collection in der Datenbank gespeichert.|User Story 4: Vorschläge für neue Web Apps einbringen können|Vollständig umgesetzt
+|QS-5|Nur angemeldete Nutzer können die App nutzen. Ist ein Nutzer nicht angemeldet, erscheint ein Login-Screen. Der Nutzer kann sich jederzeit wieder abmelden.|User Story 5: Authentication|Vollständig umgesetzt
+|QS-6|Die Suche zeigt auch ausgewählte native Apps wie WhatsApp an. Beim Klick auf eine native App wird diese über einen Intent geöffnet.|User Story 6: Native Apps|Vollständig umgesetzt
+|QS-7|Pro Benutzerkonto können individuelle Maximalzeiten für bestimmte Apps definiert werden. Sobald die Zeit überschritten ist, wird die App in der Suche ausgegraut und kann nicht mehr geöffnet werden.|User Story 7: Zeitbeschränkung|*Nicht implementiert* - vorgesehen für zukünftige Version
+|QS-8|Pro Benutzerkonto können 2-4 favorisierte Apps festgelegt werden. Diese werden permanent angezeigt und können ohne Suche direkt geöffnet werden.|User Story 8: Beliebte Apps anpinnen|*Teilweise umgesetzt* durch die Schnellzugriffsleiste, aber ohne personalisierte Einstellungsmöglichkeit
+|===
 
-ifdef::arc42help[]
+=== 10.3 Bewertung und Ausblick
 
-endif::arc42help[]
+Wie aus der Tabelle ersichtlich, erfüllt die aktuelle Implementierung die User Stories 1-6 vollständig:
+
+* Die App-Liste wird aktuell gehalten (QS-1)
+* Die Suchfunktion funktioniert wie spezifiziert (QS-2)
+* Web-Apps können kontrolliert geöffnet werden (QS-3)
+* Vorschläge für neue Apps können eingereicht werden (QS-4)
+* Die Authentifizierung ist implementiert (QS-5)
+* Native Apps sind in die Suche integriert (QS-6)
+
+Für die Anforderungen QS-7 und QS-8 gilt:
+
+* *Zeitbeschränkung (QS-7)*: Diese Funktion wurde aufgrund des Zeitrahmens für das Schulprojekt zurückgestellt. Die technische Grundlage ist bereits vorbereitet, da das Capacitor Browser Plugin Events für das Öffnen und Schließen von Web-Apps bietet. Dies ermöglicht die zukünftige Messung der Nutzungszeit. Die Implementierung ist für die nächste Entwicklungsphase eingeplant.
+
+* *Beliebte Apps anpinnen (QS-8)*: Die aktuelle Schnellzugriffsleiste am unteren Bildschirmrand bietet bereits teilweise diese Funktionalität, da häufig genutzte Apps wie Telefon, Messaging und WhatsApp dort angezeigt werden. Allerdings fehlt noch die Möglichkeit für Benutzer, diese Auswahl selbst zu konfigurieren. Die Schnellzugriffsleiste muss um Einstellungsmöglichkeiten erweitert werden, um QS-8 vollständig zu erfüllen.
+
+Die Abhängigkeit zwischen den Qualitätsanforderungen ist wie folgt:
+
+* Die Aktualität der App-Liste (QS-1) ist fundamental für alle anderen Funktionen
+* Die Authentifizierung (QS-5) ist Voraussetzung für die personalisierte Nutzung (QS-7, QS-8)
+* Die Suchfunktion (QS-2) ist zentral für den Zugriff auf alle Apps (Web-Apps und native Apps)
+* Die kontrollierten Web-Apps (QS-3) sind das Kernstück der Digital Wellbeing-Strategie der App
