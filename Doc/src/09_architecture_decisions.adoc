@@ -1,9 +1,182 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-design-decisions]]
-== Architecture Decisions
+== 9. Architekturentscheidungen
 
+In diesem Kapitel werden wichtige Architekturentscheidungen dokumentiert, die für das Luddite Launcher-Projekt getroffen wurden. Diese Entscheidungen haben signifikante Auswirkungen auf die Gesamtarchitektur und den Erfolg des Projekts.
 
-ifdef::arc42help[]
+=== 9.1 Verwendung von Angular und Capacitor
 
-endif::arc42help[]
+==== Kontext
+Für die Entwicklung des Luddite Launcher benötigten wir ein Framework, das sowohl eine moderne Web-Entwicklung als auch eine nahtlose Integration mit nativen Mobilgerätefunktionen ermöglicht.
+
+==== Entscheidung
+Wir haben uns für Angular als Frontend-Framework in Kombination mit Capacitor als native Bridge entschieden.
+
+==== Begründung
+* Angular bietet ein robustes, komponenten-basiertes Framework mit starkem Fokus auf Typsicherheit durch TypeScript
+* Capacitor ermöglicht die Wiederverwendung von Web-Entwicklungskenntnissen bei gleichzeitiger Nutzung nativer Funktionen
+* Die Kombination ermöglicht eine schnelle Entwicklung bei gleichzeitiger nativer Performanz auf dem Gerät
+* Angular bietet eine gute Unterstützung für State Management und Services, was für die Verwaltung der App-Listen und Benutzereinstellungen wichtig ist
+* Frühere Erfahrungen mit Vue.js haben gezeigt, dass ein stärker strukturiertes Framework für diesen Anwendungsfall vorteilhafter ist
+
+==== Alternativen
+* React Native: Hätte ähnliche Vorteile geboten, aber in der Blockwoche wurde bereits Angular behandelt
+* Kotlin/Java (native Android-Entwicklung): Hätte potenziell bessere Performanz geboten, aber hätte deutlich mehr Entwicklungsaufwand bedeutet & wäre auch nicht Teil der Blockwoche gewesen.
+* Flutter: War vielversprechend, aber die Integrationsmöglichkeiten mit bestehendem Web-Code waren limitierter
+
+=== 9.2 Modifizierte LineageOS-Version ohne Browser
+
+==== Kontext
+Um das Ziel zu erreichen, Social-Media-Ablenkungen zu reduzieren, musste der uneingeschränkte Internetzugang verhindert werden.
+
+==== Entscheidung
+Entwicklung einer modifizierten LineageOS-Version für das Pixel 6, bei der der Standard-Browser vollständig entfernt wurde.
+
+==== Begründung
+* LineageOS bietet als Open-Source-Android-Distribution die Möglichkeit, tiefgreifende Modifikationen vorzunehmen
+* Die vollständige Entfernung des Browsers verhindert Umgehungslösungen, die bei einfachen App-Blockern möglich wären
+* Dies ermöglicht eine kontrollierte Umgebung, in der nur ausgewählte Web-Apps über den Luddite Launcher zugänglich sind
+* LineageOS bietet gute Unterstützung für Pixel-Geräte und regelmäßige Sicherheitsupdates
+
+==== Alternativen
+* Nutzung der Android Enterprise-Lösung: Hätte ähnliche Einschränkungen ermöglicht, wäre jedoch mit höheren Lizenzkosten verbunden gewesen
+* Entwicklung eines Custom ROMs von Grund auf: Zu hoher Entwicklungsaufwand
+* App-basierte Beschränkungen: Wären leichter zu umgehen gewesen
+
+=== 9.3 Capacitor InAppBrowser für kontrollierte Web-Apps
+
+==== Kontext
+Es wird eine Lösung benötigt, um ausgewählte Webseiten zugänglich zu machen, ohne einen vollwertigen Browser anzubieten.
+
+==== Entscheidung
+Verwendung des Capacitor InAppBrowser-Plugins für den kontrollierten Zugriff auf Web-Apps.
+
+==== Begründung
+* Das InAppBrowser-Plugin bietet die Möglichkeit, Webseiten in einer kontrollierten Umgebung zu öffnen
+* Die Option `openInWebView` ermöglicht es, URLs zu fixieren und Navigationsmöglichkeiten einzuschränken
+* Das Plugin ist gut dokumentiert und wird aktiv gewartet
+* Events wie `browserClosed` und `browserPageLoaded` ermöglichen die Tracking-Funktionalität für zukünftige Zeitbeschränkungen
+* Nahtlose Integration mit unserem Angular-Frontend über die Capacitor-Bridge
+
+==== Alternativen
+* Eigene WebView-Implementierung: Höherer Entwicklungsaufwand ohne signifikante Vorteile
+* Progressive Web Apps (PWAs): Hätten weniger Kontrolle über das Nutzerverhalten geboten
+* Native App-Wrapper für jede Website: Zu hoher Wartungsaufwand für jede einzelne Web-App
+
+=== 9.4 Microservice-Architektur für Backend-Services
+
+==== Kontext
+Das Backend muss verschiedene Funktionen bereitstellen, darunter Authentifizierung, App-Listenmanagement und (zukünftig) Zeitbeschränkungen.
+
+==== Entscheidung
+Implementierung einer Microservice-Architektur mit Docker-Containern für die verschiedenen Backend-Komponenten.
+
+==== Begründung
+* Separate Container für Luddite Launcher Backend, Luddite Installer Backend und MongoDB
+* Bessere Skalierbarkeit der einzelnen Komponenten
+* Unabhängige Entwicklung und Deployment der verschiedenen Dienste
+* Höhere Ausfallsicherheit, da Fehler in einem Service die anderen nicht beeinträchtigen
+* Leichtere Wartbarkeit durch klare Trennung der Verantwortlichkeiten
+
+==== Alternativen
+* Monolithische Architektur: Hätte die Entwicklung anfangs vereinfacht, aber langfristig Skalierungsprobleme verursacht
+* Serverless-Architektur: Wäre für einige Funktionen gut geeignet, aber schwieriger für die persistente Datenspeicherung
+
+=== 9.5 MongoDB als Datenbank
+
+==== Kontext
+Für die Speicherung von Benutzerinformationen, App-Listen und Einstellungen wird eine flexible, skalierbare Datenbanklösung benötigt.
+
+==== Entscheidung
+Verwendung von MongoDB als dokumentenorientierte NoSQL-Datenbank.
+
+==== Begründung
+* Schemafreies Design ermöglicht flexible Anpassungen an den Datenstrukturen während der Entwicklung
+* Gute Skalierbarkeit für zukünftiges Wachstum
+* JSON-ähnliches Dokumentenformat passt gut zum JavaScript/TypeScript-Stack
+* Einfache Integration mit Node.js-Backend
+* Hohe Leseperformance für die häufigen Anfragen nach App-Listen
+
+==== Alternativen
+* PostgreSQL/MySQL: Hätten stärkere Konsistenzgarantien geboten, aber weniger Flexibilität
+* Firebase Firestore: Hätte serverlose Operationen ermöglicht, aber mit höheren langfristigen Kosten
+* Redis: Gut für Caching und temporäre Daten, aber weniger geeignet für die Hauptdatenspeicherung
+
+=== 9.6 REST API statt GraphQL
+
+==== Kontext
+Es wird eine API-Strategie für die Kommunikation zwischen Frontend und Backend benötigt.
+
+==== Entscheidung
+Implementierung einer RESTful API für die Backend-Kommunikation.
+
+==== Begründung
+* REST bietet eine vertraute, gut dokumentierte Schnittstelle
+* Die Datenaustauschangforderungen sind relativ einfach und gut auf REST-Endpunkte abbildbar
+* Geringere Komplexität im Vergleich zu GraphQL, was die Entwicklungszeit reduziert
+* Gute Caching-Möglichkeiten, was für mobile Apps mit potenziell instabiler Verbindung wichtig ist
+* Einfache Integration mit Angular-Services und Capacitor HTTP-Plugin
+
+==== Alternativen
+* GraphQL: Hätte mehr Flexibilität bei komplexen Abfragen geboten, aber mit höherer Implementierungskomplexität
+* gRPC: Hätte bessere Performanz bieten können, ist aber komplexer in der Implementierung und hat weniger Unterstützung für Web-Clients
+
+=== 9.7 JWT für Authentifizierung
+
+==== Kontext
+Eine sichere, zustandslose Authentifizierungsmethode ist erforderlich, um Benutzer zu identifizieren und zu autorisieren.
+
+==== Entscheidung
+Verwendung von JSON Web Tokens (JWT) für die Benutzerauthentifizierung.
+
+==== Begründung
+* Zustandslose Authentifizierung passt gut zur Microservice-Architektur
+* Tokens können sicher auf dem Client gespeichert werden (Capacitor Preferences API)
+* Reduzierter Server-Overhead, da keine Sitzungsverwaltung erforderlich ist
+* Einfache Integration mit Node.js-Backend durch verfügbare Libraries
+* Ermöglicht eine klare Trennung zwischen Authentifizierung und Autorisierung
+
+==== Alternativen
+* Session-basierte Authentifizierung: Hätte zusätzliche Server-Infrastruktur für die Sitzungsverwaltung erfordert
+* OAuth 2.0: Zu komplex für die aktuellen Anforderungen, könnte aber für zukünftige Social-Login-Funktionen relevant werden
+
+=== 9.8 GitHub Actions für CI/CD
+
+==== Kontext
+Ein automatisiertes Build- und Deployment-System wird benötigt, um konsistente Releases zu gewährleisten.
+
+==== Entscheidung
+Verwendung von GitHub Actions für CI/CD-Pipelines.
+
+==== Begründung
+* Enge Integration mit dem GitHub-Repository
+* Automatisierte Build-Prozesse für Frontend- und Backend-Komponenten
+* Automatisierte Tests vor dem Deployment
+* Automatisierte APK-Signierung für Android-Releases
+* Kosteneffizienz, da innerhalb der kostenlosen GitHub-Kontingente nutzbar
+
+==== Alternativen
+* Jenkins: Mehr Flexibilität, aber höherer Wartungsaufwand
+* GitLab CI: Hätte einen Wechsel der Repository-Plattform erfordert
+* CircleCI/Travis CI: Ähnliche Funktionalität, aber weniger nahtlose Integration mit GitHub
+
+=== 9.9 Object Storage für APK-Dateien
+
+==== Kontext
+Eine skalierbare Lösung für die Speicherung und Verteilung von APK-Dateien wird benötigt.
+
+==== Entscheidung
+Verwendung von Infomaniak Object Storage für die APK-Speicherung.
+
+==== Begründung
+* Kosteneffiziente Speicherung großer Binärdateien
+* Hohe Verfügbarkeit und Zuverlässigkeit
+* Einfache Integration mit dem Backend durch REST API
+* Skalierbarkeit für wachsende Anzahl von App-Versionen
+* Kompatibel mit der bereits genutzten Infomaniak-Infrastruktur
+
+==== Alternativen
+* Datenbankbasierte Speicherung: Ineffizient für große Binärdateien
+* Filesystem-basierte Speicherung: Schwieriger zu skalieren und zu sichern
+* AWS S3 oder Google Cloud Storage: Ähnliche Funktionalität, aber höhere Kosten bei der aktuellen Infrastruktur
