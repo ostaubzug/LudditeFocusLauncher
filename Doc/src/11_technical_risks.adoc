@@ -1,9 +1,40 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-technical-risks]]
-== Risks and Technical Debts
+== 11. Risiken und technische Schulden
 
+In diesem Kapitel werden die aktuellen Risiken und technischen Schulden des Luddite Launcher Projekts dokumentiert. Diese Übersicht dient dazu, potenzielle Problembereiche transparent zu machen und künftige Entwicklungsschwerpunkte zu identifizieren.
 
-ifdef::arc42help[]
+=== 11.1 Technische Risiken
 
-endif::arc42help[]
+[options="header",cols="1,3,2,1"]
+|===
+|ID|Risiko|Potenzielle Auswirkung|Priorisierung
+|R-01|Installation von Apps über ADB weiterhin möglich|Umgehung des kontrollierten App-Ökosystems durch technisch versierte Nutzer|Hoch
+|R-02|Abhängigkeit von Capacitor-Plugins und deren Aktualisierungen|Mögliche Inkompatibilitäten oder fehlende Funktionalität bei neuen Android-Versionen|Mittel
+|R-03|Modifiziertes LineageOS ist nicht für alle Smartphones verfügbar|Eingeschränkte Nutzerbasis und potenzielle Kompatibilitätsprobleme|Mittel
+|===
+
+=== 11.2 Maßnahmen zur Risikoreduzierung
+
+[options="header",cols="1,3"]
+|===
+|Risiko-ID|Maßnahmen
+|R-01|Implementierung einer Root-Erkennung und Sperrung von ADB-Features in modifiziertem LineageOS in einer zukünftigen Version. Alternativ: Entwicklung eines SELinux-Moduls, das nicht-autorisierte App-Installationen blockiert.
+|R-02|Regelmäßiges Testen der App mit neuen Capacitor-Versionen. Erstellung eines umfassenden Test-Katalogs für die Integration mit nativen Funktionen. Bereithalten von Fallback-Mechanismen.
+|R-03|Auswahl gezielter, weit verbreiteter Smartphone-Modelle für die Unterstützung. Dokumentation des Build-Prozesses für Community-Entwickler, die weitere Geräte unterstützen möchten.
+|===
+
+=== 11.3 Technische Schulden
+[options="header",cols="1,3,2,1"]
+|===
+|ID|Technische Schuld|Auswirkung|Dringlichkeit
+|S-01|Fehlende automatisierte Tests für die Angular-Komponenten|Erhöhtes Risiko von Regressionsfehlern bei Änderungen und Updates|Hoch
+|S-02|Redundanzen in der Backend-API mit separaten Endpunkten für Launcher und Installer|Erhöhter Wartungsaufwand und Risiko inkonsistenter Implementierungen|Mittel
+|S-03|Noch nicht implementierte Zeitbegrenzungsfunktion trotz entsprechender User Story|Nicht erfülltes Kernversprechen der Anwendung zur Reduzierung von Bildschirmzeit|Hoch
+|S-04|Eingeschränkte Personalisierungsmöglichkeiten der Schnellzugriffsleiste|Weniger benutzerfreundliche Erfahrung und nicht erfüllte User Story|Mittel
+|S-05|Hardcodierte Konfigurationswerte in einigen Komponenten|Erschwerte Wartbarkeit und Anpassung an unterschiedliche Umgebungen|Niedrig
+|S-06|MongoDB-Schema ohne ausreichende Validierung|Risiko von Dateninkonsistenzen|Niedrig
+|S-07|JWT Secret als Konstante im Code statt als Umgebungsvariable|Sicherheitsrisiko bei öffentlichem Code-Zugriff|Hoch
+|S-08|Passwörter werden im Klartext in der MongoDB gespeichert|Erhebliches Sicherheitsrisiko bei Datenbankzugriff oder -kompromittierung|Sehr hoch
+|===
