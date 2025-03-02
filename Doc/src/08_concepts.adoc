@@ -65,6 +65,22 @@ Das System implementiert folgende Strategien zur Fehlerbehandlung:
 * **Offline-Funktionalität**: Bei Verbindungsabbrüchen kann der Launcher weiterhin auf gecachte App-Listen zugreifen
 * **Fehlerprotokollierung**: Kritische Fehler werden im Backend protokolliert
 
+=== 8.6 Testkonzept
+
+Für die aktuelle Entwicklungsphase des Luddite Launchers wurde ein pragmatischer Testansatz gewählt:
+
+* **Manuelle Tests**: Aufgrund der überschaubaren Anzahl an Funktionen werden aktuell manuelle Tests durchgeführt. Diese umfassen:
+- Funktionelle Tests der Kernfunktionen (Suche, App-Öffnung, Web-App-Darstellung)
+- UI/UX-Tests für verschiedene Ansichten
+- Integrationstests mit den Backend-Services
+
+* **Geplante Teststrategie**: Für zukünftige Versionen ist der Ausbau der Teststrategie geplant:
+- Unit-Tests für Angular-Komponenten und Services
+- Automatisierte End-to-End-Tests mit Cypress oder ähnlichen Frameworks
+- Continuous Integration Testing mit GitHub Actions
+
+Das aktuelle manuelle Testverfahren ist für den Projektumfang angemessen, wird jedoch mit wachsender Funktionalität und Nutzerbasis entsprechend erweitert werden.
+
 
 === 8.7 Build- und Deployment-Konzept
 
