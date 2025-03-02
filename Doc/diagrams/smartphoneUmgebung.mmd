@@ -1,0 +1,20 @@
+graph TB
+  subgraph "Pixel 6 mit modifiziertem LineageOS"
+    A[LineageOS ohne Browser]
+    subgraph "Luddite Launcher"
+      B[Angular Frontend]
+      C[Capacitor Native Bridge]
+      D[InAppBrowser Plugin]
+    end
+    E[Luddite Installer]
+    F[Native Apps]
+    G[AppLauncher Plugin]
+
+    A --- B
+    B --- C
+    C --- D
+    C --- G
+    G --- F
+    A --- E
+    A --- F
+  end

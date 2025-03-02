@@ -1,25 +1,82 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-concepts]]
-== Cross-cutting Concepts
+== 8. Querschnittliche Konzepte
+
+=== 8.1 Domänenmodell
+
+Das Domänenmodell des Luddite Launcher Systems umfasst die folgenden Kernelemente:
+
+image::diagrams/domainmodel.png[Domainmodel]
+
+Diese Entitäten bilden die Grundlage des Domänenmodells und sind in der MongoDB gespeichert.
+
+=== 8.2 Nutzererfahrung und UI-Konzept
+
+Der Luddite Launcher setzt auf eine minimalistische, nicht ablenkende Benutzeroberfläche, die sich an folgenden Prinzipien orientiert:
+
+* **Funktionsorientiert statt unterhaltungsorientiert**: Die Oberfläche präsentiert Tools und nützliche Anwendungen, nicht Unterhaltungs- oder Social-Media-Inhalte.
+* **Reduzierte visuelle Reize**: Einfache Farbpalette, reduzierte Animationen, keine Benachrichtigungsbadges für Social-Media-Apps.
+* **Fokussierte Suche**: Zentrales Suchfeld als Haupteinstiegspunkt zur App-Nutzung.
+* **Bewusste Nutzung fördern**: Zukünftig geplante Zeitlimits werden visuell dargestellt, um Nutzer zur bewussten Verwendung anzuregen.
+
+=== 8.3 Sicherheitskonzept
+
+Das Sicherheitskonzept des Luddite Launcher Systems umfasst folgende Aspekte:
+
+==== 8.3.1 Authentifizierung und Autorisierung
+
+* JWT-basierte Authentifizierung für die Kommunikation zwischen App und Backend
+* Passwortgeschützte Benutzerkonten zur Personalisierung der Einstellungen
+* Sichere Token-Speicherung mit Capacitor Preferences API
+
+==== 8.3.2 Systemsicherheit
+
+* Eingeschränkter Browser-Zugriff nur auf definierte URLs
+* Verhinderung von URL-Änderungen im In-App-Browser
+* Installation neuer Apps nur über den kontrollierten Luddite Installer (mit Ausnahme von ADB, was in zukünftigen Versionen weiter eingeschränkt werden soll)
+
+=== 8.4 Persistenzkonzept
+
+Die Persistenz im Luddite Launcher System ist auf verschiedenen Ebenen implementiert:
+
+==== 8.4.1 Server-seitige Persistenz
+
+* MongoDB-Datenbank für Benutzerdaten, App-Kataloge und Berechtigungen
+* Kollektionen für:
+- Benutzer (users)
+- Web-Apps (webapps)
+- Native Apps (nativeapps)
+- App-Wünsche (app_wishlist)
+* Object Storage für die Speicherung von APK-Dateien
+
+==== 8.4.2 Client-seitige Persistenz
+
+* Lokales Caching der App-Listen mittels Capacitor Preferences API
+* Speicherung von Authentifizierungstokens
+* Pufferung von App-Daten für Offline-Funktionalität
+
+image::diagrams/Persistenzübersicht.png[Persistenz]
+
+=== 8.5 Fehlerbehandlungs- und Erholungskonzept
+
+Das System implementiert folgende Strategien zur Fehlerbehandlung:
+
+* **Offline-Funktionalität**: Bei Verbindungsabbrüchen kann der Launcher weiterhin auf gecachte App-Listen zugreifen
+* **Fehlerprotokollierung**: Kritische Fehler werden im Backend protokolliert
 
 
-ifdef::arc42help[]
+=== 8.7 Build- und Deployment-Konzept
 
-endif::arc42help[]
+Das Build- und Deployment-System des Luddite Launcher nutzt folgende Ansätze:
 
-=== _<Concept 1>_
+==== 8.7.1 Frontend-Build
 
-_<explanation>_
+* Angular-basierter Build-Prozess
+* Capacitor für die native App-Konvertierung
+* GitHub Actions für CI/CD
 
+==== 8.7.2 Backend-Deployment
 
-
-=== _<Concept 2>_
-
-_<explanation>_
-
-...
-
-=== _<Concept n>_
-
-_<explanation>_
+* Docker-Container für die verschiedenen Backend-Komponenten
+* Docker-Compose für den Server

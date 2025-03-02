@@ -1,0 +1,17 @@
+graph TB
+subgraph "Infomaniak OpenStack Cloud"
+subgraph "Docker Container"
+A[Node.js Luddite Launcher Backend]
+B[ASP.NET Luddite Installer Backend]
+C[MongoDB Container]
+end
+D[Object Storage]
+
+A --- C
+B --- C
+B --- D
+end
+
+E[Smartphone Luddite Launcher] --- |HTTPS| A
+F[Smartphone Luddite Installer] --- |HTTPS| B
+F --- |APK Downloads| D

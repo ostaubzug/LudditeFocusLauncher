@@ -1,0 +1,30 @@
+classDiagram
+  class User {
+    String username
+    String password
+    Date createdAt
+    authenticate()
+  }
+
+  class WebApp {
+    String name
+    String url
+    String icon
+    String timeLimit
+  }
+
+  class NativeApp {
+    String name
+    String uri
+    String icon
+  }
+
+  class AppWishlist {
+    String name
+    String url
+    String comment
+  }
+
+  User "1" -- "*" WebApp : kann nutzen
+  User "1" -- "*" NativeApp : kann nutzen
+  User "1" -- "*" AppWishlist : kann vorschlagen

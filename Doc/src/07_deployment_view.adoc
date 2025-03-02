@@ -1,50 +1,96 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-deployment-view]]
+== 7. Verteilungssicht
+
+=== 7.1 Infrastruktur Ebene 1
+
+Die Verteilungssicht zeigt die Infrastruktur, auf der das Luddite Launcher-System betrieben wird.
+Diese umfasst den Luddite Launcher (Frontend), das Backend und die Datenbank.
+
+==== Übersichtsdiagramm
+
+image::diagrams/infrastructure.png[Infrastruktur Übersicht]
+
+==== Motivation
+
+Die Verteilungsarchitektur wurde so gestaltet, dass sie den Hauptzielen des Projekts entspricht, insbesondere der Schaffung einer kontrollierten Smartphone-Umgebung, die die Nutzung sozialer Medien einschränkt und gleichzeitig wichtige Funktionen beibehält. Die Infrastruktur unterstützt:
+
+1. Ein modifiziertes Android-Betriebssystem ohne nativen Browser
+2. Einen benutzerfreundlichen Launcher mit kontrolliertem Web-Zugang
+3. Zentralisierte Verwaltung von zulässigen Web-Apps
+4. Sichere Verteilung von geprüften nativen Apps
+5. Künftige Implementierung von Nutzungszeitbeschränkungen
+
+==== Qualitäts- und Leistungsmerkmale
+
+* *Verfügbarkeit*: Die Backend-Infrastruktur in der Infomaniak OpenStack Cloud gewährleistet hohe Verfügbarkeit für die App-Listen und Authentifizierungsdienste.
+* *Sicherheit*: Die zentrale Verwaltung erlaubt strikte Kontrolle darüber, welche Apps installiert werden können.
+* *Skalierbarkeit*: Die Cloud-Infrastruktur kann mit wachsender Benutzerbasis skaliert werden.
+* *Netzwerkbandbreite*: Die Kommunikation zwischen App und Backend beschränkt sich hauptsächlich auf kleine Datenpakete (Authentifizierung, App-Listen), mit Ausnahme der gelegentlichen APK-Downloads.
+
+==== Zuordnung der Bausteine zu Infrastruktur
+
+[options="header",cols="1,2"]
+|===
+|Baustein|Infrastrukturelement
+|Luddite Launcher|Pixel 6 mit modifiziertem LineageOS
+|Luddite Installer|Pixel 6 mit modifiziertem LineageOS
+|Native Apps|Pixel 6 mit modifiziertem LineageOS
+|Backend API|Node.js Server in Infomaniak OpenStack Cloud
+|App-Datenbank|MongoDB in Infomaniak OpenStack Cloud
+|APK-Speicher|Object Storage in Infomaniak OpenStack Cloud
+|===
+
+=== 7.2 Infrastruktur Ebene 2
+
+==== Smartphone-Umgebung
+
+image::diagrams/smartphoneUmgebung.png[Smartphone Umgebung]
+
+Der Luddite Launcher läuft auf einem Pixel 6 Smartphone mit einer angepassten LineageOS-Version, bei der der standardmäßige Webbrowser entfernt wurde. Der Launcher selbst ist eine Angular-Anwendung, die mittels Capacitor auf native Funktionen zugreifen kann.
+
+*Besonderheiten:*
+
+* Das InAppBrowser-Plugin ermöglicht kontrollierten Zugriff auf ausgewählte Webseiten
+* Das AppLauncher-Plugin ermöglicht den Start nativer Apps
+* Die modifizierte LineageOS-Version verhindert die Installation nicht-autorisierter Apps (mit Ausnahme über ADB, was in zukünftigen Versionen weiter eingeschränkt werden soll)
+* Der Luddite Installer ist die einzige Möglichkeit, autorisierte Apps zu installieren
+
+==== Backend-Infrastruktur
+
+image::diagrams/backendInfrastruktur.png[Backendinfrastruktur]
+
+Das Backend wird in der Infomaniak OpenStack Cloud gehostet und besteht aus Docker-Containern:
 
 
-== Deployment View
 
-ifdef::arc42help[]
+=== 7.3 Technische Infrastruktur
 
-endif::arc42help[]
+==== Hardware-Anforderungen
 
-=== Infrastructure Level 1
+*Smartphone:*
 
-ifdef::arc42help[]
+* Pixel 6 oder LineageOS 22.1 kompatibles Gerät
 
-endif::arc42help[]
+*Backend:*
 
-_**<Overview Diagram>**_
+* 1 vCPU
+* 4 GB RAM
+* 20 GB SSD Speicher
+* Object Storage mit 10 GB (erweiterbar)
 
-Motivation::
+==== Software-Umgebung
 
-_<explanation in text form>_
+*Smartphone:*
 
-Quality and/or Performance Features::
+* Modifiziertes LineageOS ohne Browser-Komponenten
+* Android API Level 26+
 
-_<explanation in text form>_
+*Backend:*
 
-Mapping of Building Blocks to Infrastructure::
-_<description of the mapping>_
+* Docker Containers
+* Node.js 20.x
+* MongoDB 6.x
+* OpenStack-basierte Cloud-Infrastruktur
 
-
-=== Infrastructure Level 2
-
-ifdef::arc42help[]
-
-endif::arc42help[]
-
-==== _<Infrastructure Element 1>_
-
-_<diagram + explanation>_
-
-==== _<Infrastructure Element 2>_
-
-_<diagram + explanation>_
-
-...
-
-==== _<Infrastructure Element n>_
-
-_<diagram + explanation>_
