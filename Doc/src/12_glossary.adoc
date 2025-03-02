@@ -1,19 +1,80 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-glossary]]
-== Glossary
+== 12. Glossar
 
-ifdef::arc42help[]
+In diesem Kapitel werden wichtige Begriffe, Abkürzungen und Fachbegriffe definiert, die im Kontext des Luddite Launcher Projekts verwendet werden.
 
-endif::arc42help[]
-
-[cols="e,2e" options="header"]
+[options="header",cols="1,4"]
 |===
-|Term |Definition
+|Begriff|Definition
 
-|<Term-1>
-|<definition-1>
+|ADB
+|Android Debug Bridge. Ein Kommandozeilen-Tool, das die Kommunikation mit einem Android-Gerät ermöglicht und zum Installieren von Apps ohne Google Play Store verwendet werden kann.
 
-|<Term-2>
-|<definition-2>
+|Angular
+|Ein TypeScript-basiertes Frontend-Framework für die Entwicklung von Single-Page-Anwendungen, das im Luddite Launcher für die Benutzeroberfläche verwendet wird.
+
+|API
+|Application Programming Interface. Eine Schnittstelle, die es verschiedenen Softwarekomponenten ermöglicht, miteinander zu kommunizieren.
+
+|APK
+|Android Package Kit. Das Dateiformat für die Distribution und Installation von Android-Anwendungen.
+
+|Capacitor
+|Ein Framework, das Web-Anwendungen in native mobile Apps konvertiert und dabei den Zugriff auf native Funktionen ermöglicht.
+
+|Digital Wellbeing
+|Konzept zur Förderung einer gesunden, bewussten Nutzung digitaler Geräte und der Reduzierung von digitalen Ablenkungen.
+
+|Docker
+|Eine Plattform zur Entwicklung, Bereitstellung und Ausführung von Anwendungen in Containern, die in der Backend-Infrastruktur des Luddite Launcher verwendet wird.
+
+|InAppBrowser
+|Ein Capacitor-Plugin, das einen kontrollierten Web-Browser innerhalb der App bereitstellt und für den Zugriff auf ausgewählte Webseiten verwendet wird.
+
+|Intent
+|In Android: ein Mechanismus, der die Kommunikation zwischen verschiedenen Komponenten ermöglicht, z.B. zum Starten einer anderen App.
+
+|JWT
+|JSON Web Token. Ein offener Standard zur sicheren Übertragung von Informationen als JSON-Objekt, der für die Authentifizierung im Luddite Launcher verwendet wird.
+
+|LineageOS
+|Eine freie, quelloffene Custom-ROM-Distribution für Android-Geräte, die als Grundlage für das modifizierte Betriebssystem des Luddite Launcher dient.
+
+|Luddite
+|Historisch: Mitglieder einer Bewegung englischer Textilarbeiter im frühen 19. Jahrhundert, die sich gegen die Industrialisierung wehrten. Im Kontext dieses Projekts: Symbolisch für eine kritische Haltung gegenüber übermäßiger Technologienutzung.
+
+|Luddite Installer
+|Eine spezielle App im System, die die Installation von autorisierten nativen Apps ermöglicht.
+
+|Luddite Launcher
+|Die zentrale Anwendung des Projekts, die als Startbildschirm (Launcher) dient und den kontrollierten Zugriff auf Web- und native Apps ermöglicht.
+
+|MongoDB
+|Eine dokumentenorientierte NoSQL-Datenbank, die im Backend des Luddite Launcher zur Speicherung von Benutzerinformationen und App-Listen verwendet wird.
+
+|Native App
+|Eine Anwendung, die speziell für eine bestimmte Plattform (in diesem Fall Android) entwickelt wurde und direkt auf dem Gerät ausgeführt wird.
+
+|Node.js
+|Eine JavaScript-Laufzeitumgebung, die für die Entwicklung des Backend-Servers des Luddite Launcher verwendet wird.
+
+|Object Storage
+|Ein Speichersystem für unstrukturierte Daten, das in der Infomaniak-Cloud zur Speicherung von APK-Dateien verwendet wird.
+
+|OpenStack
+|Eine Open-Source-Cloud-Computing-Plattform, die von Infomaniak für die Bereitstellung der Backend-Infrastruktur verwendet wird.
+
+|Schnellzugriffsleiste
+|Ein UI-Element am unteren Bildschirmrand des Luddite Launcher, das schnellen Zugriff auf häufig genutzte Apps bietet.
+
+|Social Media Abhängigkeit
+|Ein Zustand übermäßiger oder zwanghafter Nutzung sozialer Medien, der zu negativen Auswirkungen auf das Wohlbefinden führen kann und dem der Luddite Launcher entgegenwirken soll.
+
+|Web-App
+|Eine Anwendung, die über einen Webbrowser zugänglich ist und im Luddite Launcher über den kontrollierten InAppBrowser aufgerufen wird.
+
+|Zeitbegrenzung
+|Eine geplante Funktion des Luddite Launcher, die die Nutzungsdauer bestimmter Apps, insbesondere sozialer Medien, einschränken soll.
 |===
