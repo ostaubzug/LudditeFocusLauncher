@@ -43,7 +43,7 @@ In diesem Kapitel werden wichtige Begriffe, Abkürzungen und Fachbegriffe defini
 |Eine freie, quelloffene Custom-ROM-Distribution für Android-Geräte, die als Grundlage für das modifizierte Betriebssystem des Luddite Launcher dient.
 
 |Luddite
-|Historisch: Mitglieder einer Bewegung englischer Textilarbeiter im frühen 19. Jahrhundert, die sich gegen die Industrialisierung wehrten. Im Kontext dieses Projekts: Symbolisch für eine kritische Haltung gegenüber übermäßiger Technologienutzung.
+|Historisch: Mitglieder einer Bewegung englischer Textilarbeiter im frühen 19. Jahrhundert, die sich gegen die Industrialisierung wehrten. Im Kontext dieses Projekts: Symbolisch für eine kritische Haltung gegenüber übermässiger Technologienutzung.
 
 |Luddite Installer
 |Eine spezielle App im System, die die Installation von autorisierten nativen Apps ermöglicht.
@@ -70,7 +70,7 @@ In diesem Kapitel werden wichtige Begriffe, Abkürzungen und Fachbegriffe defini
 |Ein UI-Element am unteren Bildschirmrand des Luddite Launcher, das schnellen Zugriff auf häufig genutzte Apps bietet.
 
 |Social Media Abhängigkeit
-|Ein Zustand übermäßiger oder zwanghafter Nutzung sozialer Medien, der zu negativen Auswirkungen auf das Wohlbefinden führen kann und dem der Luddite Launcher entgegenwirken soll.
+|Ein Zustand übermässiger oder zwanghafter Nutzung sozialer Medien, der zu negativen Auswirkungen auf das Wohlbefinden führen kann und dem der Luddite Launcher entgegenwirken soll.
 
 |Web-App
 |Eine Anwendung, die über einen Webbrowser zugänglich ist und im Luddite Launcher über den kontrollierten InAppBrowser aufgerufen wird.

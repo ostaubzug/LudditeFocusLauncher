@@ -4,7 +4,7 @@ Die Laufzeitsicht zeigt das Zusammenspiel der Bausteine des Luddite Launchers zu
 
 ## 6.1 Authentifizierung eines Benutzers
 
-Dieses Szenario zeigt den Anmeldevorgang eines Benutzers und die anschließende Initialisierung der App.
+Dieses Szenario zeigt den Anmeldevorgang eines Benutzers und die anschliessende Initialisierung der App.
 
 image::diagrams/authsequence.png[Sequenzdiagramm Authentifizierung]
 

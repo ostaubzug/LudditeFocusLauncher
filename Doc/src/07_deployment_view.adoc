@@ -48,7 +48,7 @@ Die Verteilungsarchitektur wurde so gestaltet, dass sie den Hauptzielen des Proj
 
 image::diagrams/smartphoneUmgebung.png[Smartphone Umgebung]
 
-Der Luddite Launcher läuft auf einem Pixel 6 Smartphone mit einer angepassten LineageOS-Version, bei der der standardmäßige Webbrowser entfernt wurde. Der Launcher selbst ist eine Angular-Anwendung, die mittels Capacitor auf native Funktionen zugreifen kann.
+Der Luddite Launcher läuft auf einem Pixel 6 Smartphone mit einer angepassten LineageOS-Version, bei der der standardmässige Webbrowser entfernt wurde. Der Launcher selbst ist eine Angular-Anwendung, die mittels Capacitor auf native Funktionen zugreifen kann.
 
 *Besonderheiten:*
 

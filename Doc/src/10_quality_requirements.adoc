@@ -37,7 +37,7 @@ Wie aus der Tabelle ersichtlich, erfüllt die aktuelle Implementierung die User 
 
 Für die Anforderungen QS-7 und QS-8 gilt:
 
-* *Zeitbeschränkung (QS-7)*: Diese Funktion wurde aufgrund des Zeitrahmens für das Schulprojekt zurückgestellt. Die technische Grundlage ist bereits vorbereitet, da das Capacitor Browser Plugin Events für das Öffnen und Schließen von Web-Apps bietet. Dies ermöglicht die zukünftige Messung der Nutzungszeit. Die Implementierung ist für die nächste Entwicklungsphase eingeplant.
+* *Zeitbeschränkung (QS-7)*: Diese Funktion wurde aufgrund des Zeitrahmens für das Schulprojekt zurückgestellt. Die technische Grundlage ist bereits vorbereitet, da das Capacitor Browser Plugin Events für das Öffnen und Schliessen von Web-Apps bietet. Dies ermöglicht die zukünftige Messung der Nutzungszeit. Die Implementierung ist für die nächste Entwicklungsphase eingeplant.
 
 * *Beliebte Apps anpinnen (QS-8)*: Die aktuelle Schnellzugriffsleiste am unteren Bildschirmrand bietet bereits teilweise diese Funktionalität, da häufig genutzte Apps wie Telefon, Messaging und WhatsApp dort angezeigt werden. Allerdings fehlt noch die Möglichkeit für Benutzer, diese Auswahl selbst zu konfigurieren. Die Schnellzugriffsleiste muss um Einstellungsmöglichkeiten erweitert werden, um QS-8 vollständig zu erfüllen.
 

@@ -37,7 +37,7 @@ Entwicklung einer modifizierten LineageOS-Version für das Pixel 6, bei der der 
 * LineageOS bietet als Open-Source-Android-Distribution die Möglichkeit, tiefgreifende Modifikationen vorzunehmen
 * Die vollständige Entfernung des Browsers verhindert Umgehungslösungen, die bei einfachen App-Blockern möglich wären
 * Dies ermöglicht eine kontrollierte Umgebung, in der nur ausgewählte Web-Apps über den Luddite Launcher zugänglich sind
-* LineageOS bietet gute Unterstützung für Pixel-Geräte und regelmäßige Sicherheitsupdates
+* LineageOS bietet gute Unterstützung für Pixel-Geräte und regelmässige Sicherheitsupdates
 
 ==== Alternativen
 * Nutzung der Android Enterprise-Lösung: Hätte ähnliche Einschränkungen ermöglicht, wäre jedoch mit höheren Lizenzkosten verbunden gewesen
@@ -170,13 +170,13 @@ Eine skalierbare Lösung für die Speicherung und Verteilung von APK-Dateien wir
 Verwendung von Infomaniak Object Storage für die APK-Speicherung.
 
 ==== Begründung
-* Kosteneffiziente Speicherung großer Binärdateien
+* Kosteneffiziente Speicherung grosser Binärdateien
 * Hohe Verfügbarkeit und Zuverlässigkeit
 * Einfache Integration mit dem Backend durch REST API
 * Skalierbarkeit für wachsende Anzahl von App-Versionen
 * Kompatibel mit der bereits genutzten Infomaniak-Infrastruktur
 
 ==== Alternativen
-* Datenbankbasierte Speicherung: Ineffizient für große Binärdateien
+* Datenbankbasierte Speicherung: Ineffizient für grosse Binärdateien
 * Filesystem-basierte Speicherung: Schwieriger zu skalieren und zu sichern
 * AWS S3 oder Google Cloud Storage: Ähnliche Funktionalität, aber höhere Kosten bei der aktuellen Infrastruktur

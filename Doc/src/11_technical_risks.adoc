@@ -15,13 +15,13 @@ In diesem Kapitel werden die aktuellen Risiken und technischen Schulden des Ludd
 |R-03|Modifiziertes LineageOS ist nicht für alle Smartphones verfügbar|Eingeschränkte Nutzerbasis und potenzielle Kompatibilitätsprobleme|Mittel
 |===
 
-=== 11.2 Maßnahmen zur Risikoreduzierung
+=== 11.2 Massnahmen zur Risikoreduzierung
 
 [options="header",cols="1,3"]
 |===
-|Risiko-ID|Maßnahmen
+|Risiko-ID|Massnahmen
 |R-01|Implementierung einer Root-Erkennung und Sperrung von ADB-Features in modifiziertem LineageOS in einer zukünftigen Version. Alternativ: Entwicklung eines SELinux-Moduls, das nicht-autorisierte App-Installationen blockiert.
-|R-02|Regelmäßiges Testen der App mit neuen Capacitor-Versionen. Erstellung eines umfassenden Test-Katalogs für die Integration mit nativen Funktionen. Bereithalten von Fallback-Mechanismen.
+|R-02|Regelmässiges Testen der App mit neuen Capacitor-Versionen. Erstellung eines umfassenden Test-Katalogs für die Integration mit nativen Funktionen. Bereithalten von Fallback-Mechanismen.
 |R-03|Auswahl gezielter, weit verbreiteter Smartphone-Modelle für die Unterstützung. Dokumentation des Build-Prozesses für Community-Entwickler, die weitere Geräte unterstützen möchten.
 |===
 
