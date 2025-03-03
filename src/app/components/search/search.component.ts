@@ -49,7 +49,6 @@ interface AppWithSanitizedIcon extends App {
           class="w-full rounded-xl bg-white/10 px-11 py-3 text-base text-white backdrop-blur-lg transition-all placeholder:text-gray-300 focus:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/20"
           placeholder="Search apps..."
         >
-        <!-- Search icon -->
         <svg class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-white/70"
              viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
           <path fill-rule="evenodd"
@@ -57,7 +56,6 @@ interface AppWithSanitizedIcon extends App {
                 clip-rule="evenodd"/>
         </svg>
 
-        <!-- Clear button (X) - Only shown when there is text -->
         <button
           *ngIf="searchTerm.trim()"
           (click)="clearSearch()"
@@ -77,7 +75,6 @@ interface AppWithSanitizedIcon extends App {
         #resultsPanel
       >
         <ul class="max-h-72 overflow-y-auto p-2 text-sm custom-scrollbar">
-          <!-- App list items -->
           <li
             *ngFor="let app of filteredSanitizedAppList; trackBy: trackById"
             (mousedown)="handleItemClick(app)"
@@ -142,13 +139,10 @@ export class SearchComponent implements OnInit {
     private router: Router
   ) {}
 
-  // Handle clicks outside the search container to close results
   @HostListener('document:click', ['$event'])
   handleOutsideClick(event: MouseEvent) {
-    // Don't process if search isn't active
     if (!this.isFocused) return;
 
-    // Check if the click was outside the search container and results panel
     const clickedInside =
       this.searchContainer?.nativeElement.contains(event.target) ||
       this.resultsPanel?.nativeElement?.contains(event.target);
@@ -161,12 +155,10 @@ export class SearchComponent implements OnInit {
 
   ngOnInit() {
     console.log('SearchComponent.ngOnInit() called');
-    // Initialize showResults to true if there's a search term
     this.showResults = this.searchTerm.trim().length > 0;
 
     this.appService.apps$.subscribe({
       next: (appList) => {
-        // Create the settings app
         const settingsApp: AppWithSanitizedIcon = {
           _id: 'settings',
           type: 'settings',
@@ -183,13 +175,11 @@ export class SearchComponent implements OnInit {
                   </svg>`)
         };
 
-        // Create a new array with sanitized app icons
         const sanitizedApps = appList.map(app => ({
           ...app,
           safeIcon: this.sanitizer.bypassSecurityTrustHtml(app.icon)
         }));
 
-        // Create completely new arrays with the settings app included and sort alphabetically by name
         this.sanitizedAppList = [settingsApp, ...sanitizedApps].sort((a, b) =>
           a.name.toLowerCase().localeCompare(b.name.toLowerCase())
         );
@@ -206,28 +196,21 @@ export class SearchComponent implements OnInit {
     });
   }
 
-  // For ngFor trackBy function
   trackById(index: number, app: AppWithSanitizedIcon): string {
     return app._id;
   }
 
-  // Handle focus event on the search input
   onFocus() {
     this.isFocused = true;
-    // Ensure any previous animation completes
     setTimeout(() => {
       this.showResults = true;
     }, 10);
   }
 
-  // Handle blur event on the search input
   handleBlur() {
-    // We'll handle closing in the document click handler
-    // This ensures we don't close the panel if the user clicks on a result
     this.itemClicked = false;
   }
 
-  // Clear search field
   clearSearch() {
     this.searchTerm = '';
     this.filterApps();

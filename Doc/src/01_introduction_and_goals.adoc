@@ -19,8 +19,6 @@ Zentrale Funktionen des Launchers sind:
 * Möglichkeit, neue Web-App-Vorschläge einzureichen
 * Integration mit nativen Apps wie WhatsApp
 
-Gerne passe ich die Qualitätskriterien in Kapitel 1 entsprechend den sieben Anforderungen an. Hier ist die überarbeitete Version für den Abschnitt "Qualitätsziele":
-
 
 === Qualitätsziele
 

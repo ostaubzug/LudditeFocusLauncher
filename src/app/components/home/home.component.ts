@@ -20,12 +20,10 @@ import { QuickAccessBarComponent } from '../quick-access-bar/quick-access-bar.co
         <div class="absolute inset-0 bg-black/30"></div>
       </div>
 
-      <!-- Content -->
       <div class="relative z-10">
         <app-search></app-search>
       </div>
 
-      <!-- Quick Access Bar -->
       <app-quick-access-bar></app-quick-access-bar>
     </div>
   `

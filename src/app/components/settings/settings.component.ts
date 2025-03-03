@@ -18,7 +18,6 @@ interface WishlistItem {
   imports: [CommonModule, FormsModule],
   template: `
     <div class="min-h-screen bg-white p-6">
-      <!-- Header -->
       <div class="max-w-md mx-auto mb-8 pt-6">
         <div class="flex items-center mb-6">
           <button
@@ -32,14 +31,12 @@ interface WishlistItem {
           </button>
           <h1 class="text-xl font-bold text-gray-900">Luddite Settings</h1>
 
-          <!-- Current User Display -->
           <div class="ml-auto flex items-center">
             <span *ngIf="currentUser" class="text-sm text-gray-600">{{currentUser.username}}</span>
           </div>
         </div>
       </div>
 
-      <!-- Sync Button Section -->
       <div class="max-w-md mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <h2 class="text-lg font-semibold mb-4 text-gray-900">Sync App Data</h2>
         <p class="text-sm text-gray-600 mb-4">
@@ -60,7 +57,6 @@ interface WishlistItem {
           {{ isSyncing ? 'Syncing...' : 'Sync Now' }}
         </button>
 
-        <!-- Success Message -->
         <div *ngIf="syncSuccess" class="mt-4 bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800">
           <div class="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 text-green-500">
@@ -70,7 +66,6 @@ interface WishlistItem {
           </div>
         </div>
 
-        <!-- Error Message -->
         <div *ngIf="syncError" class="mt-4 bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-800">
           <div class="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 text-red-500">
@@ -81,7 +76,6 @@ interface WishlistItem {
         </div>
       </div>
 
-      <!-- Wishlist Form -->
       <div class="max-w-md mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <h2 class="text-lg font-semibold mb-6 text-gray-900">Submit Website Suggestion</h2>
         <form (ngSubmit)="submitWishlistItem()">
@@ -140,7 +134,6 @@ interface WishlistItem {
           </button>
         </form>
 
-        <!-- Success Message -->
         <div *ngIf="submitSuccess" class="mt-6 bg-green-50 border border-green-200 rounded-lg p-4 text-sm text-green-800">
           <div class="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 text-green-500">
@@ -150,7 +143,6 @@ interface WishlistItem {
           </div>
         </div>
 
-        <!-- Error Message -->
         <div *ngIf="submitError" class="mt-6 bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-800">
           <div class="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 text-red-500">
@@ -161,7 +153,6 @@ interface WishlistItem {
         </div>
       </div>
 
-      <!-- Account Section -->
       <div class="max-w-md mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <h2 class="text-lg font-semibold mb-4 text-gray-900">Account</h2>
 
@@ -191,19 +182,16 @@ export class SettingsComponent {
     comment: ''
   };
 
-  // For wishlist submission
   isSubmitting = false;
   submitSuccess = false;
   submitError = false;
   errorMessage = '';
 
-  // For sync functionality
   isSyncing = false;
   syncSuccess = false;
   syncError = false;
   syncErrorMessage = '';
 
-  // Current user information
   currentUser: { username: string } | null = null;
 
   constructor(
@@ -211,7 +199,6 @@ export class SettingsComponent {
     private appListService: AppListService,
     private authService: AuthService
   ) {
-    // Get current user information
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
@@ -223,7 +210,6 @@ export class SettingsComponent {
 
   logout() {
     this.authService.logout();
-    // The app component will handle redirecting to the login screen
   }
 
   async submitWishlistItem() {
@@ -238,7 +224,6 @@ export class SettingsComponent {
     this.submitError = false;
 
     try {
-      // Get auth token
       const token = await this.authService.getToken();
 
       const response = await CapacitorHttp.post({
@@ -280,7 +265,6 @@ export class SettingsComponent {
         this.syncSuccess = true;
         this.isSyncing = false;
 
-        // Auto-hide success message after 3 seconds
         setTimeout(() => {
           this.syncSuccess = false;
         }, 3000);

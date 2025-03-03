@@ -82,7 +82,6 @@ import { AuthService } from '../../services/auth.service';
           </form>
 
           <form *ngIf="activeTab === 'register'" (ngSubmit)="onRegister()" #registerForm="ngForm">
-            <!-- Error Message -->
             <div *ngIf="errorMessage" class="mb-6 p-4 rounded-lg bg-red-500/20 text-red-200 text-sm">
               {{ errorMessage }}
             </div>
@@ -201,7 +200,6 @@ export class LoginComponent {
           this.registerUsername = '';
           this.registerPassword = '';
 
-          // Switch to login tab after successful registration
           setTimeout(() => {
             this.activeTab = 'login';
             this.successMessage = '';

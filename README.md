@@ -21,6 +21,18 @@ Eine weitere neue Herausforderung war für mich die Dokumentation. Ich habe das 
 
 # Arbeitsjournal
 
+- Februar 22 - 8 Stunden - Umsetzung
+- Februar 23 - 8 Stunden - Umsetzung
+- Februar 24 - 4 Stunden - Umsetzung
+- Februar 25 - 2 Stunden - Umsetzung
+- Februar 27 - 7 Stunden - Umsetzung
+- Februar 28 - 6 Stunden - Dokumentation & Umsetzung
+- März 1 - 6 Stunden - Dokumentation
+- März 2 - 8 Stunden - Dokumentation, Aufräumen, Präsentation
+- März 3 - 5 Stunden - Vorbereitung Präsentation
+
+ca. 54 Stunden insgesamt
+
 ## Probleme
 - CORS Probleme durch Kommunikation zum Backend
 - Gelöst via Proxy

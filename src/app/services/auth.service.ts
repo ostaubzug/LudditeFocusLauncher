@@ -78,7 +78,6 @@ export class AuthService {
         }
       }).then(response => {
         if (response.status === 200 && response.data.token) {
-          // Store token
           Preferences.set({
             key: this.TOKEN_KEY,
             value: response.data.token

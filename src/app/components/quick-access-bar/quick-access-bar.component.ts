@@ -24,7 +24,6 @@ interface DisplayApp {
   template: `
     <div class="fixed bottom-8 left-0 right-0 z-20">
       <div class="relative mx-auto max-w-2xl px-8">
-        <!-- Scrollable Container -->
         <div class="overflow-x-auto scrollbar-hide py-4" #scrollContainer>
           <div class="flex justify-between w-max" style="min-width: 100%;">
             <button
@@ -54,19 +53,17 @@ interface DisplayApp {
   `,
   styles: [`
     .scrollbar-hide {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
     .scrollbar-hide::-webkit-scrollbar {
-      display: none;  /* Chrome, Safari and Opera */
+      display: none;
     }
   `]
 })
 export class QuickAccessBarComponent implements OnInit, OnDestroy {
-  // The list of prioritized apps we want to show first in the quick access bar
   priorityAppNames = ['Phone', 'Messaging', 'WhatsApp', 'Camera'];
   displayApps: DisplayApp[] = [];
-  // Removed scroll controls
 
   scrollContainer: HTMLElement | null = null;
 
@@ -79,7 +76,6 @@ export class QuickAccessBarComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadNativeApps();
 
-    // Subscribe to route changes to reset scroll position
     this.resetScrollOnNavigation();
   }
 
@@ -89,18 +85,15 @@ export class QuickAccessBarComponent implements OnInit, OnDestroy {
   }
 
   resetScrollOnNavigation() {
-    // Listen for router navigation events
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.resetScrollPosition();
       }
     });
 
-    // Also check for browser navigation events
     window.addEventListener('popstate', this.resetScrollPosition.bind(this));
   }
 
-  // Reset scroll position when app is inactive and becomes active again
   @HostListener('window:focus')
   onWindowFocus() {
     this.resetScrollPosition();
@@ -119,31 +112,25 @@ export class QuickAccessBarComponent implements OnInit, OnDestroy {
   loadNativeApps() {
     this.nativeAppService.apps$.subscribe({
       next: (apps) => {
-        // First, prioritize the target apps
         const priorityApps = apps
           .filter(app => this.isPriorityApp(app.name))
           .map(app => this.convertToDisplayApp(app, true))
           .sort((a, b) => {
-            // Sort by the order in priorityAppNames
             return this.priorityAppNames.indexOf(a.name) - this.priorityAppNames.indexOf(b.name);
           });
 
-        // Then add the rest of the apps, alphabetically
         const otherApps = apps
           .filter(app => !this.isPriorityApp(app.name))
           .map(app => this.convertToDisplayApp(app, false))
           .sort((a, b) => a.name.localeCompare(b.name));
 
-        // Combine the two lists
         this.displayApps = [...priorityApps, ...otherApps];
 
-        // Reset scroll position after data loaded
         setTimeout(() => this.resetScrollPosition(), 100);
       },
       error: (error) => console.error('Error loading native apps:', error)
     });
 
-    // Also trigger a sync with server to ensure we have the latest data
     this.nativeAppService.syncWithServer().subscribe();
   }
 
@@ -166,7 +153,6 @@ export class QuickAccessBarComponent implements OnInit, OnDestroy {
   }
 
   isCustomIcon(name: string): boolean {
-    // Return true for apps where we want to use our custom icons
     return ['Phone', 'Messaging', 'WhatsApp', 'Camera','Proton Calendar','Proton Mail','Proton Pass','Proton Wallet','Proton Drive','LudditeInstaller'].includes(name);
   }
 
@@ -202,7 +188,6 @@ export class QuickAccessBarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // Clean up event listeners
     window.removeEventListener('popstate', this.resetScrollPosition);
   }
 }
