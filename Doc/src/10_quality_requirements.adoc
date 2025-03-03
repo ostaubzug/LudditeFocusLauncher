@@ -7,25 +7,6 @@ ifndef::imagesdir[:imagesdir: ../images]
 
 Der Qualitätsbaum zeigt die wichtigsten Qualitätsanforderungen basierend auf den ursprünglichen User Stories.
 
-[mermaid]
-....
-graph TD
-    Q[Qualität] --> A[Aktualität]
-    Q --> B[Benutzerfreundlichkeit]
-    Q --> S[Sicherheit]
-    Q --> P[Personalisierung]
-
-    A --> A1[Aktuelle App-Liste]
-    B --> B1[Einfache App-Suche]
-    B --> B2[Web-App Nutzung]
-    B --> B3[Feedback-Möglichkeit]
-    S --> S1[Zugangskontrolle]
-    S --> S2[Eingeschränkter Web-Zugriff]
-    P --> P1[Native App-Integration]
-    P --> P2[Zeitlimits für Social Media]
-    P --> P3[Schnellzugriff auf häufige Apps]
-....
-
 === 10.2 Qualitätsszenarien
 
 Die folgenden Qualitätsszenarien basieren direkt auf den User Stories aus dem Anforderungsdokument.
