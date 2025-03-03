@@ -1,0 +1,31 @@
+sequenceDiagram
+  participant Benutzer
+  participant HomeComp as Home Component
+  participant AppListSvc as App List Service
+  participant WebAppSvc as WebApp List Service
+  participant NativeAppSvc as NativeApp List Service
+  participant AuthService
+  participant Backend as Backend-Server
+  participant Storage as Preferences Storage
+
+  Benutzer->>HomeComp: App öffnen/Sync anfordern
+  HomeComp->>AppListSvc: syncAll()
+  AppListSvc->>WebAppSvc: syncWithServer()
+  AppListSvc->>NativeAppSvc: syncWithServer()
+
+  WebAppSvc->>AuthService: getToken()
+  AuthService-->>WebAppSvc: Token
+  WebAppSvc->>Backend: GET /api/webapps
+  Backend-->>WebAppSvc: Web-Apps Liste
+  WebAppSvc->>Storage: Daten speichern
+  WebAppSvc-->>AppListSvc: Synchronisation abgeschlossen
+
+  NativeAppSvc->>AuthService: getToken()
+  AuthService-->>NativeAppSvc: Token
+  NativeAppSvc->>Backend: GET /api/nativeapps
+  Backend-->>NativeAppSvc: Native-Apps Liste
+  NativeAppSvc->>Storage: Daten speichern
+  NativeAppSvc-->>AppListSvc: Synchronisation abgeschlossen
+
+  AppListSvc-->>HomeComp: Alle Daten aktualisiert
+  HomeComp-->>Benutzer: Aktualisierte App-Liste anzeigen

@@ -1,0 +1,16 @@
+graph TB
+subgraph "Benutzer-Umgebung"
+A[Pixel 6 Smartphone] --- B[Modifiziertes LineageOS]
+B --- C[Luddite Launcher App]
+B --- D[Luddite Installer]
+B --- E["Native Apps (WhatsApp, Proton Mail, etc.)"]
+end
+
+subgraph "Infomaniak OpenStack Cloud"
+F[Backend-Server] --- G[MongoDB]
+H[Object Storage] --- F
+end
+
+C --- |HTTP/HTTPS| F
+D --- |HTTP/HTTPS| F
+D --- |APK-Downloads| H

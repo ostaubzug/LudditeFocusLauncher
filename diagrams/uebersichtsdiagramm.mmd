@@ -1,0 +1,14 @@
+graph TB
+  subgraph "Luddite Phone Ökosystem"
+    A[Modifiziertes LineageOS]
+    B[Luddite Launcher]
+    C[Luddite Installer]
+    D[Backend Services]
+    E[Native Apps]
+  end
+
+  A --> B
+  A --> C
+  B <--> D
+  B --> E
+  C --> E

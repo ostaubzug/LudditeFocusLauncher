@@ -1,0 +1,13 @@
+graph TB
+  subgraph "Smartphone"
+    A[App-Listen Cache]
+    B[Auth Token]
+  end
+
+  subgraph "Backend"
+    D[(MongoDB)]
+    E[Object Storage]
+  end
+
+  A -.-> D
+  B -.-> D

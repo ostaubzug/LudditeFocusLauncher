@@ -1,0 +1,11 @@
+graph TB
+    User(("Benutzer"))
+    Launcher["Luddite Launcher"]
+    WebApps["ausgewählte Websites"]
+    NativeApps["Native Apps<br/>(WhatsApp, Proton Mail, etc.)"]
+    Backend["Backend-Services"]
+
+    User -->|nutzt| Launcher
+    Launcher -->|öffnet kontrolliert| WebApps
+    Launcher -->|startet| NativeApps
+    Launcher <-->|synchronisiert App-Liste,<br/>Authentifizierung| Backend

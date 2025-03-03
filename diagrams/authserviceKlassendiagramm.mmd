@@ -1,0 +1,26 @@
+classDiagram
+  class AuthService {
+    -currentUserSubject: BehaviorSubject
+    -isAuthenticatedSubject: BehaviorSubject
+    +currentUser$: Observable
+    +isAuthenticated$: Observable
+    +login(username, password)
+    +register(username, password)
+    +logout()
+    +getToken()
+    +verifyToken()
+  }
+
+  class CapacitorPreferences {
+    +get()
+    +set()
+    +remove()
+  }
+
+  class CapacitorHttp {
+    +post()
+    +get()
+  }
+
+  AuthService --> CapacitorPreferences: speichert Token
+  AuthService --> CapacitorHttp: API-Anfragen
