@@ -1,3 +1,7 @@
+[![Android Pipeline Status](https://github.com/ostaubzug/LudditeFocusLauncher/actions/workflows/android.yml/badge.svg)](https://github.com/ostaubzug/LudditeFocusLauncher/actions/workflows/android.yml)
+[![Doc Pipeline Status](https://github.com/ostaubzug/LudditeFocusLauncher/actions/workflows/documentation.yml/badge.svg)](https://github.com/ostaubzug/LudditeFocusLauncher/actions/workflows/documentation.yml)
+[![Doc Deploy Status](https://github.com/ostaubzug/LudditeFocusLauncher/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/ostaubzug/LudditeFocusLauncher/actions/workflows/pages/pages-build-deployment)
+
 # Dokumentation
 
 [Website](https://ostaubzug.github.io/LudditeFocusLauncher/)
